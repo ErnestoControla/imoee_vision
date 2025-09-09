@@ -90,6 +90,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "core",
     "asistente.users",
+    "analisis_coples",
     
     # Your stuff: custom apps go here
 ]

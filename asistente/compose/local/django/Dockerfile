@@ -13,7 +13,16 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   # dependencies for building Python packages
   build-essential \
   # psycopg dependencies
-  libpq-dev
+  libpq-dev \
+  # OpenCV dependencies
+  libopencv-dev \
+  python3-opencv \
+  # Additional dependencies for computer vision
+  libglib2.0-0 \
+  libsm6 \
+  libxext6 \
+  libxrender-dev \
+  libgomp1
 
 # Requirements are installed here to ensure they will be cached.
 COPY ./requirements .
@@ -54,6 +63,14 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
   wait-for-it \
   # Translations dependencies
   gettext \
+  # OpenCV runtime dependencies
+  libopencv-dev \
+  python3-opencv \
+  libglib2.0-0 \
+  libsm6 \
+  libxext6 \
+  libxrender-dev \
+  libgomp1 \
   # cleaning up unused files
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*

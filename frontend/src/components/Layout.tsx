@@ -17,6 +17,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import SecurityIcon from "@mui/icons-material/Security";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import SettingsIcon from "@mui/icons-material/Settings";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -25,10 +27,12 @@ import { useAuth } from "../context/AuthContext";
 import { ColorModeContext } from "../theme";
 import mrdLogo from '../assets/images/main-logo.png';
 
-// Definimos las dos entradas básicas; Roles se añadirá dinámicamente
+// Definimos las entradas básicas del menú
 const baseMenu = [
   { text: "Inicio",   icon: <HomeIcon />,   to: "/" },
   { text: "Usuarios", icon: <PeopleIcon />, to: "/usuarios" },
+  { text: "Análisis de Coples", icon: <AssessmentIcon />, to: "/analisis" },
+  { text: "Configuraciones", icon: <SettingsIcon />, to: "/analisis/configuraciones" },
 ];
 
 export default function Layout() {

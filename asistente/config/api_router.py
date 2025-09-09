@@ -10,6 +10,12 @@ from asistente.users.api.views import (
     UserProfileView,
 )
 from core.api.views import RolViewSet
+from analisis_coples.api.views import (
+    ConfiguracionSistemaViewSet,
+    AnalisisCopleViewSet,
+    EstadisticasSistemaViewSet,
+    SistemaControlViewSet
+)
 
 # Seleccionamos DefaultRouter en DEBUG para endpoint raiz y SimpleRouter en producción
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
@@ -17,6 +23,12 @@ router = DefaultRouter() if settings.DEBUG else SimpleRouter()
 # Registramos los ViewSets
 router.register(r"users", UserViewSet)
 router.register(r"roles", RolViewSet, basename="role")
+
+# APIs del sistema de análisis de coples
+router.register(r"analisis/configuraciones", ConfiguracionSistemaViewSet, basename="configuraciones")
+router.register(r"analisis/resultados", AnalisisCopleViewSet, basename="analisis")
+router.register(r"analisis/estadisticas", EstadisticasSistemaViewSet, basename="estadisticas")
+router.register(r"analisis/sistema", SistemaControlViewSet, basename="sistema")
 
 app_name = "api"
 urlpatterns = [

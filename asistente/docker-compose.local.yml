@@ -21,6 +21,12 @@ services:
       - ./.envs/.local/.postgres
     ports:
       - "8000:8000"
+    # Configuración para acceso a webcam
+    devices:
+      - /dev/video0:/dev/video0  # Webcam principal
+      - /dev/video1:/dev/video1  # Webcam secundaria
+    environment:
+      - DISPLAY=${DISPLAY}  # Para GUI si es necesario
     command: /start
 
   postgres:

@@ -6,6 +6,9 @@ import NotFound from './pages/NotFound';
 import HomePage from './pages/HomePage';
 import Usuarios from './pages/Usuarios';
 import Roles from './pages/Roles';              // ← Importa tu página de Roles
+import AnalisisCoples from './pages/AnalisisCoples';
+import ConfiguracionesAnalisis from './pages/ConfiguracionesAnalisis';
+import DetalleAnalisis from './pages/DetalleAnalisis';
 import AdminRoute from './components/AdminRoute';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -30,6 +33,10 @@ function App() {
               </AdminRoute>
             }
           />
+          {/* Rutas del sistema de análisis de coples */}
+          <Route path="/analisis" element={<AnalisisCoples />} />
+          <Route path="/analisis/configuraciones" element={<ConfiguracionesAnalisis />} />
+          <Route path="/analisis/:id" element={<DetalleAnalisis />} />
           {/* Aquí más rutas internas protegidas */}
         </Route>
       </Route>

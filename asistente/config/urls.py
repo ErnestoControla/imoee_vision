@@ -20,6 +20,9 @@ urlpatterns = [
     # Gestión de usuarios y cuentas
     path("users/", include("asistente.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
+    
+    # Sistema de análisis de coples
+    path("analisis/", include("analisis_coples.urls", namespace="analisis_coples")),
 
     # API (nucleo del backend)
     path("api/", include("config.api_router")),
