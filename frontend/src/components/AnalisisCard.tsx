@@ -20,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import type { AnalisisCopleList } from '../api/analisis';
 import dayjs from 'dayjs';
+import ImagenProcesadaSimple from './ImagenProcesadaSimple';
 
 interface AnalisisCardProps {
   analisis: AnalisisCopleList;
@@ -156,6 +157,18 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
                 </Typography>
               )}
             </Box>
+          </Box>
+        )}
+
+        {analisis.estado === 'completado' && (
+          <Box mb={2}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Imagen Procesada:
+            </Typography>
+            <ImagenProcesadaSimple 
+              analisisId={analisis.id} 
+              showThumbnail={true}
+            />
           </Box>
         )}
 

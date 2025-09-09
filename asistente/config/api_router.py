@@ -16,6 +16,7 @@ from analisis_coples.api.views import (
     EstadisticasSistemaViewSet,
     SistemaControlViewSet
 )
+from analisis_coples.api import image_views
 
 # Seleccionamos DefaultRouter en DEBUG para endpoint raiz y SimpleRouter en producción
 router = DefaultRouter() if settings.DEBUG else SimpleRouter()
@@ -38,4 +39,9 @@ urlpatterns = [
 
     # Endpoints CRUD para Users y Roles
     *router.urls,
+    
+    # URLs para imágenes procesadas del sistema de análisis
+    path("analisis/imagenes/procesada/<int:analisis_id>/", image_views.get_processed_image, name="imagen-procesada"),
+    path("analisis/imagenes/miniatura/<int:analisis_id>/", image_views.get_analysis_thumbnail, name="imagen-miniatura"),
+    path("analisis/imagenes/test/", image_views.test_image, name="imagen-test"),
 ]

@@ -31,6 +31,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { analisisAPI } from '../api/analisis';
 import type { AnalisisCople } from '../api/analisis';
 import dayjs from 'dayjs';
+import ImagenProcesada from '../components/ImagenProcesada';
 
 const DetalleAnalisis: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -202,7 +203,7 @@ const DetalleAnalisis: React.FC = () => {
                     Tiempo Total:
                   </Typography>
                   <Typography variant="body1">
-                    {formatTiempo(analisis.tiempos.total_ms)}
+                    {formatTiempo(analisis.tiempo_total_ms)}
                   </Typography>
                 </Grid>
               </Grid>
@@ -376,35 +377,28 @@ const DetalleAnalisis: React.FC = () => {
                 <Box display="flex" justifyContent="space-between">
                   <Typography variant="body1" fontWeight="bold">Total:</Typography>
                   <Typography variant="body1" fontWeight="bold">
-                    {formatTiempo(analisis.tiempos.total_ms)}
+                    {formatTiempo(analisis.tiempo_total_ms)}
                   </Typography>
                 </Box>
               </Box>
             </CardContent>
           </Card>
 
-          {/* Imagen del Análisis */}
-          <Card sx={{ mt: 2 }}>
-            <CardHeader
-              title="Imagen del Análisis"
-              avatar={<Image />}
-            />
-            <CardContent>
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                minHeight="200px"
-                border="1px dashed"
-                borderColor="divider"
-                borderRadius={1}
-              >
-                <Typography color="text.secondary">
-                  Imagen no disponible
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
+          {/* Imagen Procesada */}
+          {analisis.estado === 'completado' && (
+            <Card sx={{ mt: 2 }}>
+              <CardHeader
+                title="Imagen Procesada"
+                avatar={<Image />}
+              />
+              <CardContent>
+                <ImagenProcesada 
+                  analisisId={analisis.id} 
+                  showThumbnail={false}
+                />
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
     </Box>

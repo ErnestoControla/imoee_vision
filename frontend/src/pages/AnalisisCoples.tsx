@@ -26,6 +26,12 @@ import { analisisAPI } from '../api/analisis';
 import type { AnalisisCopleList, EstadoSistema } from '../api/analisis';
 import AnalisisCard from '../components/AnalisisCard';
 import EstadisticasCard from '../components/EstadisticasCard';
+// import TestImage from '../components/TestImage';
+// import TestThumbnail from '../components/TestThumbnail';
+// import SimpleImageTest from '../components/SimpleImageTest';
+// import DirectImageTest from '../components/DirectImageTest';
+// import SimpleThumbnailTest from '../components/SimpleThumbnailTest';
+import CapturaSimple from '../components/CapturaSimple';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -279,6 +285,36 @@ const AnalisisCoples: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Captura Simple */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Captura Simple
+          </Typography>
+          <CapturaSimple />
+        </CardContent>
+      </Card>
+
+      {/* Componente de Prueba de Miniatura */}
+      {/* <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Prueba de Miniatura
+          </Typography>
+          <TestThumbnail />
+        </CardContent>
+      </Card> */}
+
+      {/* Componente de Prueba Directa */}
+      {/* <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Prueba Directa de Imagen
+          </Typography>
+          <DirectImageTest />
+        </CardContent>
+      </Card> */}
 
       {/* Análisis Recientes */}
       <Card>

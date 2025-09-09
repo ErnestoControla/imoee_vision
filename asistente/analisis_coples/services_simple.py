@@ -208,39 +208,47 @@ class ServicioAnalisisCoplesSimple:
         # Simular detecciones de piezas
         detecciones_piezas = []
         for i in range(random.randint(1, 3)):
+            x1 = random.randint(50, 200)
+            y1 = random.randint(50, 200)
+            x2 = x1 + random.randint(80, 150)
+            y2 = y1 + random.randint(80, 150)
             detecciones_piezas.append({
                 "clase": f"Pieza_{i+1}",
                 "confianza": random.uniform(0.8, 0.95),
                 "bbox": {
-                    "x1": random.randint(50, 200),
-                    "y1": random.randint(50, 200),
-                    "x2": random.randint(250, 400),
-                    "y2": random.randint(250, 400)
+                    "x1": x1,
+                    "y1": y1,
+                    "x2": x2,
+                    "y2": y2
                 },
                 "centroide": {
-                    "x": random.randint(150, 300),
-                    "y": random.randint(150, 300)
+                    "x": (x1 + x2) // 2,
+                    "y": (y1 + y2) // 2
                 },
-                "area": random.randint(1000, 5000)
+                "area": (x2 - x1) * (y2 - y1)
             })
         
         # Simular detecciones de defectos
         detecciones_defectos = []
         for i in range(random.randint(0, 2)):
+            x1 = random.randint(100, 300)
+            y1 = random.randint(100, 300)
+            x2 = x1 + random.randint(40, 80)
+            y2 = y1 + random.randint(40, 80)
             detecciones_defectos.append({
                 "clase": f"Defecto_{i+1}",
                 "confianza": random.uniform(0.6, 0.9),
                 "bbox": {
-                    "x1": random.randint(100, 300),
-                    "y1": random.randint(100, 300),
-                    "x2": random.randint(350, 500),
-                    "y2": random.randint(350, 500)
+                    "x1": x1,
+                    "y1": y1,
+                    "x2": x2,
+                    "y2": y2
                 },
                 "centroide": {
-                    "x": random.randint(200, 400),
-                    "y": random.randint(200, 400)
+                    "x": (x1 + x2) // 2,
+                    "y": (y1 + y2) // 2
                 },
-                "area": random.randint(500, 2000)
+                "area": (x2 - x1) * (y2 - y1)
             })
         
         return {
