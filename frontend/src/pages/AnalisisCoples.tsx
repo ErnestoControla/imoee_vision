@@ -26,7 +26,6 @@ import { analisisAPI } from '../api/analisis';
 import type { AnalisisCopleList, EstadoSistema } from '../api/analisis';
 import AnalisisCard from '../components/AnalisisCard';
 import EstadisticasCard from '../components/EstadisticasCard';
-import TestColorComponent from '../components/TestColorComponent';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -290,8 +289,6 @@ const AnalisisCoples: React.FC = () => {
         </Box>
       )}
 
-      {/* Componente de Prueba de Colores */}
-      <TestColorComponent />
 
       {/* Control de Análisis */}
       <Card sx={{ 

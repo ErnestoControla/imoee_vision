@@ -38,20 +38,26 @@ const DetalleAnalisis: React.FC = () => {
   const navigate = useNavigate();
   const [analisis, setAnalisis] = useState<AnalisisCople | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
-      cargarAnalisis(parseInt(id));
+      const analisisId = parseInt(id);
+      cargarAnalisis(analisisId);
+    } else {
+      setLoading(false);
     }
   }, [id]);
 
   const cargarAnalisis = async (analisisId: number) => {
     try {
       setLoading(true);
+      setError(null);
       const data = await analisisAPI.getAnalisisById(analisisId);
       setAnalisis(data);
-    } catch (error) {
-      console.error('Error cargando análisis:', error);
+    } catch (error: any) {
+      setError(error.response?.data?.detail || error.message || 'Error cargando análisis');
+      setAnalisis(null);
     } finally {
       setLoading(false);
     }
@@ -89,10 +95,42 @@ const DetalleAnalisis: React.FC = () => {
     return labels[tipo] || tipo;
   };
 
+  const handleDescargar = () => {
+    if (analisis) {
+      // Crear un enlace de descarga para la imagen procesada
+      const link = document.createElement('a');
+      link.href = `/api/analisis/imagenes/${analisis.id}/`;
+      link.download = `analisis_${analisis.id_analisis}_procesada.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
+        <Typography variant="body1" sx={{ ml: 2 }}>
+          Cargando análisis...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/analisis')}
+          sx={{ mt: 2 }}
+        >
+          Volver
+        </Button>
       </Box>
     );
   }
@@ -441,61 +479,6 @@ const DetalleAnalisis: React.FC = () => {
 
         {/* Panel Lateral */}
         <Grid item xs={12} md={4}>
-          {/* Tiempos de Procesamiento */}
-          <Card>
-            <CardHeader
-              title="Tiempos de Procesamiento"
-              avatar={<Schedule />}
-            />
-            <CardContent>
-              <Box display="flex" flexDirection="column" gap={1}>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Captura:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.captura_ms)}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Clasificación:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.clasificacion_ms)}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Detección Piezas:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.deteccion_piezas_ms)}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Detección Defectos:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.deteccion_defectos_ms)}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Segmentación Defectos:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.segmentacion_defectos_ms)}
-                  </Typography>
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2">Segmentación Piezas:</Typography>
-                  <Typography variant="body2">
-                    {formatTiempo(analisis.tiempos.segmentacion_piezas_ms)}
-                  </Typography>
-                </Box>
-                <Divider sx={{ my: 1 }} />
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body1" fontWeight="bold">Total:</Typography>
-                  <Typography variant="body1" fontWeight="bold">
-                    {formatTiempo(analisis.tiempo_total_ms)}
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-
         </Grid>
       </Grid>
     </Box>

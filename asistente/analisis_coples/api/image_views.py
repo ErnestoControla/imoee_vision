@@ -326,64 +326,6 @@ def test_image_auth(request):
         )
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def test_camera_capture(request):
-    """Endpoint de prueba para capturar una imagen real de la cámara"""
-    try:
-        # Importar el servicio de análisis
-        from analisis_coples.services_real import servicio_analisis_real
-        
-        if not servicio_analisis_real.inicializado:
-            return Response(
-                {'error': 'Sistema no inicializado'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Capturar imagen usando el sistema real
-        resultado_captura = servicio_analisis_real.sistema_analisis.capturar_imagen_unica()
-        if "error" in resultado_captura:
-            return Response(
-                {'error': resultado_captura["error"]},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        
-        frame = resultado_captura["frame"]
-        
-        # Crear imagen de prueba con colores conocidos
-        # Crear un frame de prueba con colores BGR conocidos
-        test_frame = np.zeros((200, 200, 3), dtype=np.uint8)
-        
-        # Fondo azul puro (B=255, G=0, R=0)
-        test_frame[:, :, 0] = 255  # Canal B (azul)
-        
-        # Cuadrado verde en el centro (B=0, G=255, R=0)
-        test_frame[50:150, 50:150, 1] = 255  # Canal G (verde)
-        test_frame[50:150, 50:150, 0] = 0    # Asegurar que B=0
-        test_frame[50:150, 50:150, 2] = 0    # Asegurar que R=0
-        
-        # Cuadrado rojo en la esquina (B=0, G=0, R=255)
-        test_frame[100:150, 100:150, 2] = 255  # Canal R (rojo)
-        test_frame[100:150, 100:150, 0] = 0    # Asegurar que B=0
-        test_frame[100:150, 100:150, 1] = 0    # Asegurar que G=0
-        
-        # Codificar como JPG en BGR (como se hace en el sistema real)
-        _, buffer = cv2.imencode('.jpg', test_frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
-        frame_base64 = base64.b64encode(buffer).decode('utf-8')
-        
-        return Response({
-            'thumbnail_data': frame_base64,
-            'analisis_id': 'test_camera_capture_123',
-            'message': 'Imagen de prueba con colores BGR generada correctamente',
-            'frame_shape': str(test_frame.shape),
-            'frame_dtype': str(test_frame.dtype)
-        })
-    except Exception as e:
-        logger.error(f"Error generando imagen de prueba de cámara: {e}")
-        return Response(
-            {'error': f'Error generando imagen de prueba: {str(e)}'},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
 
 
 def generate_thumbnail(analisis: AnalisisCople) -> str:

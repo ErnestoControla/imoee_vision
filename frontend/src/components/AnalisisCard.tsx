@@ -111,7 +111,7 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
               <Tooltip title="Ver detalles">
                 <IconButton
                   size="medium"
-                  onClick={() => onView(analisis.id)}
+        onClick={() => onView(analisis.id)}
                   color="primary"
                   sx={{ 
                     backgroundColor: 'rgba(25, 118, 210, 0.1)',
@@ -218,7 +218,7 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
               variant="outlined"
               size="small"
               startIcon={<Visibility />}
-              onClick={() => onView(analisis.id)}
+        onClick={() => onView(analisis.id)}
               sx={{
                 borderColor: 'primary.main',
                 color: 'primary.main',
