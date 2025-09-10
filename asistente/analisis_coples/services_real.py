@@ -490,17 +490,23 @@ class ServicioAnalisisCoplesReal:
                 import base64
                 frame = resultados_json["frame"]
                 if isinstance(frame, np.ndarray):
-                    # Convertir de BGR a RGB si es necesario
-                    if len(frame.shape) == 3 and frame.shape[2] == 3:
-                        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    else:
-                        frame_rgb = frame
+                    # Asegurar que el frame esté en formato uint8 (como en Expo_modelos)
+                    if frame.dtype != np.uint8:
+                        if frame.dtype == np.float32 or frame.dtype == np.float64:
+                            # Asumir que está en rango [0, 1] y convertir a [0, 255]
+                            frame = (frame * 255).astype(np.uint8)
+                        else:
+                            frame = frame.astype(np.uint8)
                     
-                    # Codificar a base64
-                    _, buffer = cv2.imencode('.jpg', frame_rgb)
+                    # NO convertir de BGR a RGB aquí - cv2.imencode espera BGR
+                    # El frame ya viene en BGR desde OpenCV, mantenerlo así
+                    frame_bgr = frame
+                    
+                    # Codificar a base64 usando JPG (como en Expo_modelos)
+                    _, buffer = cv2.imencode('.jpg', frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, 95])
                     frame_base64 = base64.b64encode(buffer).decode('utf-8')
                     resultados_json["frame"] = frame_base64
-                    logger.info(f"✅ Frame guardado como base64: {len(frame_base64)} caracteres")
+                    logger.info(f"✅ Frame guardado como base64 JPG: {len(frame_base64)} caracteres, shape: {frame_bgr.shape}, dtype: {frame_bgr.dtype}")
                 else:
                     del resultados_json["frame"]  # Remover si no es numpy array
             analisis_db.metadatos_json = resultados_json

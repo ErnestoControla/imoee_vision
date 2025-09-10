@@ -26,16 +26,7 @@ import { analisisAPI } from '../api/analisis';
 import type { AnalisisCopleList, EstadoSistema } from '../api/analisis';
 import AnalisisCard from '../components/AnalisisCard';
 import EstadisticasCard from '../components/EstadisticasCard';
-// import TestImage from '../components/TestImage';
-// import TestThumbnail from '../components/TestThumbnail';
-// import SimpleImageTest from '../components/SimpleImageTest';
-// import DirectImageTest from '../components/DirectImageTest';
-// import SimpleThumbnailTest from '../components/SimpleThumbnailTest';
-import CapturaSimple from '../components/CapturaSimple';
-import ComparacionImagenes from '../components/ComparacionImagenes';
-import SimpleImageTest from '../components/SimpleImageTest';
-import DirectImageTest from '../components/DirectImageTest';
-import ImageDebugTest from '../components/ImageDebugTest';
+import TestColorComponent from '../components/TestColorComponent';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -179,16 +170,31 @@ const AnalisisCoples: React.FC = () => {
       </Box>
 
       {/* Estado del Sistema */}
-      <Card sx={{ mb: 3 }}>
+      <Card sx={{ 
+        mb: 3, 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+      }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Estado del Sistema</Typography>
+            <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold' }}>
+              Estado del Sistema
+            </Typography>
             <Box display="flex" gap={1}>
               <Button
                 variant="outlined"
                 size="small"
                 startIcon={<Refresh />}
                 onClick={cargarDatos}
+                sx={{ 
+                  color: 'white', 
+                  borderColor: 'white',
+                  '&:hover': { 
+                    borderColor: 'white', 
+                    backgroundColor: 'rgba(255,255,255,0.1)' 
+                  }
+                }}
               >
                 Actualizar
               </Button>
@@ -199,6 +205,14 @@ const AnalisisCoples: React.FC = () => {
                   size="small"
                   startIcon={<Stop />}
                   onClick={handleLiberarSistema}
+                  sx={{ 
+                    color: 'white', 
+                    borderColor: 'white',
+                    '&:hover': { 
+                      borderColor: 'white', 
+                      backgroundColor: 'rgba(255,255,255,0.1)' 
+                    }
+                  }}
                 >
                   Liberar
                 </Button>
@@ -209,6 +223,14 @@ const AnalisisCoples: React.FC = () => {
                   size="small"
                   startIcon={<PlayArrow />}
                   onClick={handleInicializarSistema}
+                  sx={{ 
+                    color: 'white', 
+                    borderColor: 'white',
+                    '&:hover': { 
+                      borderColor: 'white', 
+                      backgroundColor: 'rgba(255,255,255,0.1)' 
+                    }
+                  }}
                 >
                   Inicializar
                 </Button>
@@ -216,38 +238,44 @@ const AnalisisCoples: React.FC = () => {
             </Box>
           </Box>
 
-          <Box display="flex" flexWrap="wrap" gap={2} justifyContent="space-around">
+          <Box display="flex" flexWrap="wrap" gap={3} justifyContent="space-around">
             <Box textAlign="center" minWidth="200px">
               <Chip
                 label={estadoSistema?.inicializado ? 'Inicializado' : 'No Inicializado'}
                 color={estadoSistema?.inicializado ? 'success' : 'error'}
-                variant="outlined"
+                variant="filled"
+                sx={{ 
+                  backgroundColor: estadoSistema?.inicializado ? 'rgba(76, 175, 80, 0.9)' : 'rgba(244, 67, 54, 0.9)',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '0.9rem'
+                }}
               />
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255,255,255,0.8)' }}>
                 Estado del Sistema
               </Typography>
             </Box>
             <Box textAlign="center" minWidth="200px">
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body1" fontWeight="bold" sx={{ color: 'white' }}>
                 {estadoSistema?.configuracion_activa?.nombre || 'Sin configuración'}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                 Configuración Activa
               </Typography>
             </Box>
             <Box textAlign="center" minWidth="200px">
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body1" fontWeight="bold" sx={{ color: 'white' }}>
                 {estadoSistema?.configuracion_activa?.umbral_confianza || 'N/A'}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                 Umbral de Confianza
               </Typography>
             </Box>
             <Box textAlign="center" minWidth="200px">
-              <Typography variant="body1" fontWeight="bold">
+              <Typography variant="body1" fontWeight="bold" sx={{ color: 'white' }}>
                 {estadoSistema?.configuracion_activa?.configuracion_robustez || 'N/A'}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)' }}>
                 Robustez
               </Typography>
             </Box>
@@ -262,19 +290,42 @@ const AnalisisCoples: React.FC = () => {
         </Box>
       )}
 
+      {/* Componente de Prueba de Colores */}
+      <TestColorComponent />
+
       {/* Control de Análisis */}
-      <Card sx={{ mb: 3 }}>
+      <Card sx={{ 
+        mb: 3, 
+        background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        color: 'white',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+      }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
             Realizar Análisis
           </Typography>
           <Box display="flex" gap={2} alignItems="center">
             <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Tipo de Análisis</InputLabel>
+              <InputLabel sx={{ color: 'white' }}>Tipo de Análisis</InputLabel>
               <Select
                 value={tipoAnalisis}
                 onChange={(e) => setTipoAnalisis(e.target.value as any)}
                 label="Tipo de Análisis"
+                sx={{ 
+                  color: 'white',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white',
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white',
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'white',
+                  },
+                  '& .MuiSvgIcon-root': {
+                    color: 'white',
+                  },
+                }}
               >
                 <MenuItem value="completo">Análisis Completo</MenuItem>
                 <MenuItem value="clasificacion">Solo Clasificación</MenuItem>
@@ -285,89 +336,43 @@ const AnalisisCoples: React.FC = () => {
               startIcon={<PlayArrow />}
               onClick={handleRealizarAnalisis}
               disabled={procesando || !estadoSistema?.inicializado}
+              sx={{
+                backgroundColor: 'rgba(255,255,255,0.2)',
+                color: 'white',
+                border: '1px solid white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255,255,255,0.3)',
+                },
+                '&:disabled': {
+                  backgroundColor: 'rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.5)',
+                }
+              }}
             >
               {procesando ? 'Procesando...' : 'Iniciar Análisis'}
             </Button>
           </Box>
           {!estadoSistema?.inicializado && (
-            <Alert severity="warning" sx={{ mt: 2 }}>
+            <Alert severity="warning" sx={{ mt: 2, backgroundColor: 'rgba(255,255,255,0.1)' }}>
               El sistema debe estar inicializado para realizar análisis
             </Alert>
           )}
         </CardContent>
       </Card>
 
-      {/* Test de Imagen Simple */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Test de Imagen Simple
-          </Typography>
-          <SimpleImageTest />
-        </CardContent>
-      </Card>
-
-      {/* Test Directo de Imagen */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Test Directo de Imagen (Análisis 26)
-          </Typography>
-          <DirectImageTest />
-        </CardContent>
-      </Card>
-
-      {/* Test de Debug de Imagen */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Test de Debug de Imagen (Análisis 26)
-          </Typography>
-          <ImageDebugTest />
-        </CardContent>
-      </Card>
-
-      {/* Comparación de Imágenes */}
-      <ComparacionImagenes />
-
-      {/* Captura Simple */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Captura Simple
-          </Typography>
-          <CapturaSimple />
-        </CardContent>
-      </Card>
-
-      {/* Componente de Prueba de Miniatura */}
-      {/* <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Prueba de Miniatura
-          </Typography>
-          <TestThumbnail />
-        </CardContent>
-      </Card> */}
-
-      {/* Componente de Prueba Directa */}
-      {/* <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>
-            Prueba Directa de Imagen
-          </Typography>
-          <DirectImageTest />
-        </CardContent>
-      </Card> */}
 
       {/* Análisis Recientes */}
-      <Card>
+      <Card sx={{ 
+        background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        color: 'white',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+      }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
             Análisis Recientes
           </Typography>
           {analisisRecientes.length === 0 ? (
-            <Typography color="text.secondary" textAlign="center" py={4}>
+            <Typography sx={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', py: 4 }}>
               No hay análisis recientes
             </Typography>
           ) : (

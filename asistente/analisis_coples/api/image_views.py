@@ -88,12 +88,21 @@ def generate_processed_image(analisis: AnalisisCople) -> str:
                     import base64
                     try:
                         frame_bytes = base64.b64decode(frame_data)
-                        frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
-                        frame_array = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+                        # Decodificar los bytes de la imagen JPG a un array de NumPy
+                        frame_array = cv2.imdecode(np.frombuffer(frame_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
                         if frame_array is not None:
-                            # La imagen ya está en RGB desde el backend, no convertir
-                            image = Image.fromarray(frame_array)
-                            logger.info(f"✅ Imagen real cargada desde base64: {frame_array.shape}")
+                            # Asegurar que esté en formato uint8 y RGB
+                            if frame_array.dtype != np.uint8:
+                                frame_array = frame_array.astype(np.uint8)
+                            
+                            # Convertir de BGR a RGB para Pillow (cv2.imdecode devuelve BGR)
+                            if len(frame_array.shape) == 3 and frame_array.shape[2] == 3:
+                                frame_rgb = cv2.cvtColor(frame_array, cv2.COLOR_BGR2RGB)
+                            else:
+                                frame_rgb = frame_array
+                            
+                            image = Image.fromarray(frame_rgb)
+                            logger.info(f"✅ Imagen real cargada desde base64 y decodificada: {frame_rgb.shape}, dtype: {frame_rgb.dtype}")
                     except Exception as e:
                         logger.warning(f"Error decodificando base64: {e}")
                 elif isinstance(frame_data, list):
@@ -287,6 +296,96 @@ def test_image(request):
         )
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_image_auth(request):
+    """Endpoint de prueba autenticado para generar una imagen simple"""
+    try:
+        # Crear una imagen de prueba muy simple
+        img = Image.new('RGB', (100, 100), color='green')
+        draw = ImageDraw.Draw(img)
+        
+        # Dibujar un rectángulo rojo
+        draw.rectangle([20, 20, 80, 80], fill='red')
+        
+        # Convertir a base64
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        img_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        
+        return Response({
+            'thumbnail_data': img_base64,
+            'analisis_id': 'test_image_auth_123',
+            'message': 'Imagen de prueba generada correctamente'
+        })
+    except Exception as e:
+        logger.error(f"Error generando imagen de prueba autenticada: {e}")
+        return Response(
+            {'error': f'Error generando imagen de prueba: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def test_camera_capture(request):
+    """Endpoint de prueba para capturar una imagen real de la cámara"""
+    try:
+        # Importar el servicio de análisis
+        from analisis_coples.services_real import servicio_analisis_real
+        
+        if not servicio_analisis_real.inicializado:
+            return Response(
+                {'error': 'Sistema no inicializado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Capturar imagen usando el sistema real
+        resultado_captura = servicio_analisis_real.sistema_analisis.capturar_imagen_unica()
+        if "error" in resultado_captura:
+            return Response(
+                {'error': resultado_captura["error"]},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        frame = resultado_captura["frame"]
+        
+        # Crear imagen de prueba con colores conocidos
+        # Crear un frame de prueba con colores BGR conocidos
+        test_frame = np.zeros((200, 200, 3), dtype=np.uint8)
+        
+        # Fondo azul puro (B=255, G=0, R=0)
+        test_frame[:, :, 0] = 255  # Canal B (azul)
+        
+        # Cuadrado verde en el centro (B=0, G=255, R=0)
+        test_frame[50:150, 50:150, 1] = 255  # Canal G (verde)
+        test_frame[50:150, 50:150, 0] = 0    # Asegurar que B=0
+        test_frame[50:150, 50:150, 2] = 0    # Asegurar que R=0
+        
+        # Cuadrado rojo en la esquina (B=0, G=0, R=255)
+        test_frame[100:150, 100:150, 2] = 255  # Canal R (rojo)
+        test_frame[100:150, 100:150, 0] = 0    # Asegurar que B=0
+        test_frame[100:150, 100:150, 1] = 0    # Asegurar que G=0
+        
+        # Codificar como JPG en BGR (como se hace en el sistema real)
+        _, buffer = cv2.imencode('.jpg', test_frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
+        frame_base64 = base64.b64encode(buffer).decode('utf-8')
+        
+        return Response({
+            'thumbnail_data': frame_base64,
+            'analisis_id': 'test_camera_capture_123',
+            'message': 'Imagen de prueba con colores BGR generada correctamente',
+            'frame_shape': str(test_frame.shape),
+            'frame_dtype': str(test_frame.dtype)
+        })
+    except Exception as e:
+        logger.error(f"Error generando imagen de prueba de cámara: {e}")
+        return Response(
+            {'error': f'Error generando imagen de prueba: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+
 def generate_thumbnail(analisis: AnalisisCople) -> str:
     """
     Genera una miniatura de la imagen procesada
@@ -305,14 +404,23 @@ def generate_thumbnail(analisis: AnalisisCople) -> str:
                     import base64
                     try:
                         frame_bytes = base64.b64decode(frame_data)
-                        frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
-                        frame_array = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+                        # Decodificar los bytes de la imagen JPG a un array de NumPy
+                        frame_array = cv2.imdecode(np.frombuffer(frame_bytes, dtype=np.uint8), cv2.IMREAD_COLOR)
                         if frame_array is not None:
-                            # La imagen ya está en RGB desde el backend, no convertir
+                            # Asegurar que esté en formato uint8 y RGB
+                            if frame_array.dtype != np.uint8:
+                                frame_array = frame_array.astype(np.uint8)
+                            
+                            # Convertir de BGR a RGB para Pillow (cv2.imdecode devuelve BGR)
+                            if len(frame_array.shape) == 3 and frame_array.shape[2] == 3:
+                                frame_rgb = cv2.cvtColor(frame_array, cv2.COLOR_BGR2RGB)
+                            else:
+                                frame_rgb = frame_array
+                            
                             # Redimensionar a miniatura
-                            original_image = Image.fromarray(frame_array)
+                            original_image = Image.fromarray(frame_rgb)
                             image = original_image.resize((200, 200), Image.Resampling.LANCZOS)
-                            logger.info(f"✅ Miniatura real generada desde base64: {frame_array.shape} -> 200x200")
+                            logger.info(f"✅ Miniatura real generada desde base64 y decodificada: {frame_rgb.shape} -> 200x200, dtype: {frame_rgb.dtype}")
                     except Exception as e:
                         logger.warning(f"Error decodificando base64 para miniatura: {e}")
                 elif isinstance(frame_data, list):

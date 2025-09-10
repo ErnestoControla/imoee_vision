@@ -25,8 +25,11 @@ services:
     devices:
       - /dev/video0:/dev/video0  # Webcam principal
       - /dev/video1:/dev/video1  # Webcam secundaria
+    # Configuración adicional para acceso a dispositivos de video
+    privileged: true  # Permite acceso completo a dispositivos
     environment:
       - DISPLAY=${DISPLAY}  # Para GUI si es necesario
+      - VIDEO_DEVICES=/dev/video0,/dev/video1  # Variables de entorno para dispositivos de video
     command: /start
 
   postgres:
