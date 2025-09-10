@@ -45,4 +45,5 @@ urlpatterns = [
     path("analisis/imagenes/miniatura/<int:analisis_id>/", image_views.get_analysis_thumbnail, name="imagen-miniatura"),
     path("analisis/imagenes/test/", image_views.test_image, name="imagen-test"),
     path("analisis/imagenes/test-auth/", image_views.test_image_auth, name="imagen-test-auth"),
+    path("analisis/imagenes/preview/", image_views.get_camera_preview, name="camera-preview"),
 ]

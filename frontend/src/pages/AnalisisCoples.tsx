@@ -26,6 +26,7 @@ import { analisisAPI } from '../api/analisis';
 import type { AnalisisCopleList, EstadoSistema } from '../api/analisis';
 import AnalisisCard from '../components/AnalisisCard';
 import EstadisticasCard from '../components/EstadisticasCard';
+import CameraPreview from '../components/CameraPreview';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -301,59 +302,76 @@ const AnalisisCoples: React.FC = () => {
           <Typography variant="h6" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
             Realizar Análisis
           </Typography>
-          <Box display="flex" gap={2} alignItems="center">
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel sx={{ color: 'white' }}>Tipo de Análisis</InputLabel>
-              <Select
-                value={tipoAnalisis}
-                onChange={(e) => setTipoAnalisis(e.target.value as any)}
-                label="Tipo de Análisis"
-                sx={{ 
-                  color: 'white',
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'white',
-                  },
-                  '& .MuiSvgIcon-root': {
+          
+          <Box display="flex" gap={3} alignItems="flex-start">
+            {/* Panel de Controles */}
+            <Box flex={1}>
+              <Box display="flex" gap={2} alignItems="center" mb={2}>
+                <FormControl sx={{ minWidth: 200 }}>
+                  <InputLabel sx={{ color: 'white' }}>Tipo de Análisis</InputLabel>
+                  <Select
+                    value={tipoAnalisis}
+                    onChange={(e) => setTipoAnalisis(e.target.value as any)}
+                    label="Tipo de Análisis"
+                    sx={{ 
+                      color: 'white',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'white',
+                      },
+                      '& .MuiSvgIcon-root': {
+                        color: 'white',
+                      },
+                    }}
+                  >
+                    <MenuItem value="completo">Análisis Completo</MenuItem>
+                    <MenuItem value="clasificacion">Solo Clasificación</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="contained"
+                  startIcon={<PlayArrow />}
+                  onClick={handleRealizarAnalisis}
+                  disabled={procesando || !estadoSistema?.inicializado}
+                  sx={{
+                    backgroundColor: 'rgba(255,255,255,0.2)',
                     color: 'white',
-                  },
-                }}
-              >
-                <MenuItem value="completo">Análisis Completo</MenuItem>
-                <MenuItem value="clasificacion">Solo Clasificación</MenuItem>
-              </Select>
-            </FormControl>
-            <Button
-              variant="contained"
-              startIcon={<PlayArrow />}
-              onClick={handleRealizarAnalisis}
-              disabled={procesando || !estadoSistema?.inicializado}
-              sx={{
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                border: '1px solid white',
-                '&:hover': {
-                  backgroundColor: 'rgba(255,255,255,0.3)',
-                },
-                '&:disabled': {
-                  backgroundColor: 'rgba(255,255,255,0.1)',
-                  color: 'rgba(255,255,255,0.5)',
-                }
-              }}
-            >
-              {procesando ? 'Procesando...' : 'Iniciar Análisis'}
-            </Button>
+                    border: '1px solid white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255,255,255,0.3)',
+                    },
+                    '&:disabled': {
+                      backgroundColor: 'rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                    }
+                  }}
+                >
+                  {procesando ? 'Procesando...' : 'Iniciar Análisis'}
+                </Button>
+              </Box>
+              
+              {!estadoSistema?.inicializado && (
+                <Alert severity="warning" sx={{ backgroundColor: 'rgba(255,255,255,0.1)' }}>
+                  El sistema debe estar inicializado para realizar análisis
+                </Alert>
+              )}
+            </Box>
+
+            {/* Panel de Previsualización */}
+            <Box>
+              <CameraPreview 
+                isActive={estadoSistema?.inicializado || false}
+                width={400}
+                height={300}
+                refreshInterval={200}
+              />
+            </Box>
           </Box>
-          {!estadoSistema?.inicializado && (
-            <Alert severity="warning" sx={{ mt: 2, backgroundColor: 'rgba(255,255,255,0.1)' }}>
-              El sistema debe estar inicializado para realizar análisis
-            </Alert>
-          )}
         </CardContent>
       </Card>
 

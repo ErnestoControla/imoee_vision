@@ -326,6 +326,54 @@ def test_image_auth(request):
         )
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_camera_preview(request):
+    """Endpoint para obtener una previsualización en tiempo real de la cámara"""
+    try:
+        # Importar el servicio de análisis
+        from analisis_coples.services_real import servicio_analisis_real
+        
+        if not servicio_analisis_real.inicializado:
+            return Response(
+                {'error': 'Sistema no inicializado'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Obtener frame actual de la cámara
+        if servicio_analisis_real.sistema_analisis and servicio_analisis_real.sistema_analisis.webcam_fallback:
+            # Obtener frame instantáneo
+            frame, tiempo_acceso_ms, timestamp = servicio_analisis_real.sistema_analisis.webcam_fallback.obtener_frame_instantaneo()
+            
+            if frame is None:
+                return Response(
+                    {'error': 'No se pudo obtener frame de la cámara'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            # Codificar frame como JPG en BGR (como se hace en el sistema real)
+            _, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 85])
+            frame_base64 = base64.b64encode(buffer).decode('utf-8')
+            
+            return Response({
+                'preview_data': frame_base64,
+                'timestamp': timestamp,
+                'tiempo_acceso_ms': tiempo_acceso_ms,
+                'frame_shape': str(frame.shape),
+                'message': 'Previsualización de cámara obtenida correctamente'
+            })
+        else:
+            return Response(
+                {'error': 'Cámara no disponible'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+    except Exception as e:
+        logger.error(f"Error obteniendo previsualización de cámara: {e}")
+        return Response(
+            {'error': f'Error obteniendo previsualización: {str(e)}'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 
 def generate_thumbnail(analisis: AnalisisCople) -> str:
