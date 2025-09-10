@@ -140,6 +140,18 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
           />
         </Box>
 
+        {analisis.estado === 'completado' && (
+          <Box mb={2}>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Imagen Procesada:
+            </Typography>
+            <ImagenProcesadaSimple 
+              analisisId={analisis.id} 
+              showThumbnail={true}
+            />
+          </Box>
+        )}
+
         {analisis.estado === 'completado' && analisis.clase_predicha && (
           <Box mb={2}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
@@ -157,18 +169,6 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
                 </Typography>
               )}
             </Box>
-          </Box>
-        )}
-
-        {analisis.estado === 'completado' && (
-          <Box mb={2}>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              Imagen Procesada:
-            </Typography>
-            <ImagenProcesadaSimple 
-              analisisId={analisis.id} 
-              showThumbnail={true}
-            />
           </Box>
         )}
 

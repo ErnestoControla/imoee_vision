@@ -32,6 +32,10 @@ import EstadisticasCard from '../components/EstadisticasCard';
 // import DirectImageTest from '../components/DirectImageTest';
 // import SimpleThumbnailTest from '../components/SimpleThumbnailTest';
 import CapturaSimple from '../components/CapturaSimple';
+import ComparacionImagenes from '../components/ComparacionImagenes';
+import SimpleImageTest from '../components/SimpleImageTest';
+import DirectImageTest from '../components/DirectImageTest';
+import ImageDebugTest from '../components/ImageDebugTest';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -77,7 +81,10 @@ const AnalisisCoples: React.FC = () => {
         tipo_analisis: tipoAnalisis,
       });
 
+      console.log('🔍 Respuesta del análisis:', resultado);
+
       if (resultado.analisis) {
+        console.log('✅ Análisis encontrado en respuesta:', resultado.analisis.id_analisis);
         Swal.fire({
           title: 'Análisis Completado',
           text: `Análisis ${resultado.analisis.id_analisis} completado exitosamente`,
@@ -86,7 +93,11 @@ const AnalisisCoples: React.FC = () => {
         });
         
         // Recargar datos
+        console.log('🔄 Recargando datos...');
         await cargarDatos();
+        console.log('✅ Datos recargados');
+      } else {
+        console.log('❌ No se encontró análisis en la respuesta:', resultado);
       }
     } catch (error) {
       console.error('Error realizando análisis:', error);
@@ -285,6 +296,39 @@ const AnalisisCoples: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Test de Imagen Simple */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Test de Imagen Simple
+          </Typography>
+          <SimpleImageTest />
+        </CardContent>
+      </Card>
+
+      {/* Test Directo de Imagen */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Test Directo de Imagen (Análisis 26)
+          </Typography>
+          <DirectImageTest />
+        </CardContent>
+      </Card>
+
+      {/* Test de Debug de Imagen */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Test de Debug de Imagen (Análisis 26)
+          </Typography>
+          <ImageDebugTest />
+        </CardContent>
+      </Card>
+
+      {/* Comparación de Imágenes */}
+      <ComparacionImagenes />
 
       {/* Captura Simple */}
       <Card sx={{ mb: 3 }}>

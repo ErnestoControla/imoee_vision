@@ -1,86 +1,69 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { analisisAPI } from '../api/analisis';
 
 const DirectImageTest: React.FC = () => {
   const [imageData, setImageData] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const loadImage = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      console.log('🔄 Loading image from miniatura endpoint...');
-      const response = await fetch('http://localhost:8000/api/analisis/imagenes/miniatura/14/');
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
-      
-      const data = await response.json();
-      console.log('📦 Response data:', data);
-      console.log('📦 Thumbnail data type:', typeof data.thumbnail_data);
-      console.log('📦 Thumbnail data length:', data.thumbnail_data?.length);
-      console.log('📦 First 100 chars:', data.thumbnail_data?.substring(0, 100));
-      
-      setImageData(data.thumbnail_data);
-    } catch (err) {
-      console.error('❌ Error loading image:', err);
-      setError('Error al cargar la imagen');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadImage = async () => {
+      try {
+        setLoading(true);
+        const response = await analisisAPI.getMiniaturaAnalisis(26);
+        const data = response.thumbnail_data;
+        const fullDataUrl = data.startsWith('data:') ? data : `data:image/png;base64,${data}`;
+        setImageData(fullDataUrl);
+        console.log('🔍 Direct test - Image data loaded:', fullDataUrl.length, 'chars');
+      } catch (error) {
+        console.error('❌ Direct test - Error loading image:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadImage();
   }, []);
 
   if (loading) {
-    return <Typography>Cargando imagen directa...</Typography>;
+    return <div>Loading...</div>;
   }
 
-  if (error) {
-    return <Typography color="error">{error}</Typography>;
+  if (!imageData) {
+    return <div>No image data</div>;
   }
 
   return (
-    <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
-      <Typography variant="h6" gutterBottom>
-        Prueba Directa de Imagen (ID: 14)
-      </Typography>
+    <div style={{ 
+      border: '10px solid green', 
+      padding: '20px', 
+      backgroundColor: 'white',
+      margin: '20px'
+    }}>
+      <h3>Direct Image Test - Analysis 26</h3>
+      <p>Data length: {imageData.length}</p>
+      <p>First 100 chars: {imageData.substring(0, 100)}...</p>
       
-      <Button onClick={loadImage} variant="outlined" sx={{ mb: 2 }}>
-        Recargar Imagen Directa
-      </Button>
-      
-      {imageData ? (
-        <Box>
-          <Typography variant="body2" sx={{ mb: 1 }}>
-            Datos recibidos: {imageData.length} caracteres
-          </Typography>
-          <img
-            src={`data:image/png;base64,${imageData}`}
-            alt="Imagen directa del análisis"
-            style={{
-              width: '200px',
-              height: '200px',
-              objectFit: 'contain',
-              display: 'block',
-              borderRadius: '4px',
-              backgroundColor: '#ffffff',
-              border: '3px solid #ff0000',
-            }}
-            onLoad={() => console.log('✅ Direct image loaded successfully')}
-            onError={(e) => console.error('❌ Direct image load error:', e)}
-          />
-          <Typography variant="caption" display="block" sx={{ mt: 1 }}>
-            Base64: {imageData.substring(0, 50)}...
-          </Typography>
-        </Box>
-      ) : (
-        <Typography>No hay datos de imagen</Typography>
-      )}
-    </Box>
+      <div style={{ 
+        border: '5px solid purple', 
+        padding: '10px',
+        backgroundColor: 'lightblue'
+      }}>
+        <h4>Image Element:</h4>
+        <img
+          src={imageData}
+          alt="Direct test"
+          style={{
+            width: '300px',
+            height: '300px',
+            border: '5px solid orange',
+            backgroundColor: 'pink',
+            display: 'block',
+          }}
+          onLoad={() => console.log('✅ Direct test - Image loaded successfully')}
+          onError={(e) => console.error('❌ Direct test - Image load error:', e)}
+        />
+      </div>
+    </div>
   );
 };
 
