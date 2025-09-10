@@ -10,6 +10,7 @@ import {
   LinearProgress,
   IconButton,
   Tooltip,
+  Button,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -105,13 +106,19 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
           </Box>
         }
         action={
-          <Box display="flex" gap={1}>
+          <Box display="flex" gap={1} alignItems="center">
             {onView && (
               <Tooltip title="Ver detalles">
                 <IconButton
-                  size="small"
+                  size="medium"
                   onClick={() => onView(analisis.id)}
                   color="primary"
+                  sx={{ 
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(25, 118, 210, 0.2)',
+                    }
+                  }}
                 >
                   <Visibility />
                 </IconButton>
@@ -120,9 +127,15 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
             {onDownload && analisis.estado === 'completado' && (
               <Tooltip title="Descargar resultados">
                 <IconButton
-                  size="small"
+                  size="medium"
                   onClick={() => onDownload(analisis.id)}
                   color="secondary"
+                  sx={{ 
+                    backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                    }
+                  }}
                 >
                   <Download />
                 </IconButton>
@@ -189,7 +202,7 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
           </Box>
         )}
 
-        <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
           <Typography variant="body2" color="text.secondary">
             Tiempo: {formatTiempo(analisis.tiempo_total_ms)}
           </Typography>
@@ -197,6 +210,29 @@ const AnalisisCard: React.FC<AnalisisCardProps> = ({
             {dayjs(analisis.timestamp_captura).format('HH:mm:ss')}
           </Typography>
         </Box>
+
+        {/* Botón de Ver Detalles más visible */}
+        {onView && (
+          <Box display="flex" justifyContent="center">
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Visibility />}
+              onClick={() => onView(analisis.id)}
+              sx={{
+                borderColor: 'primary.main',
+                color: 'primary.main',
+                '&:hover': {
+                  borderColor: 'primary.dark',
+                  backgroundColor: 'primary.light',
+                  color: 'primary.dark',
+                }
+              }}
+            >
+              Ver Detalles
+            </Button>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );
