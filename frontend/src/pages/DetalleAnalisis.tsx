@@ -127,13 +127,62 @@ const DetalleAnalisis: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {/* Información General */}
-        <Grid item xs={12} md={8}>
-          <Card>
+        {/* Layout Principal: Imagen a la izquierda (protagonista), información a la derecha */}
+        
+        {/* Imagen Procesada - Protagonista Principal (8/12 columnas) */}
+        <Grid item xs={12} lg={8}>
+          {analisis.estado === 'completado' && (
+            <Card sx={{ 
+              height: '100%',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+            }}>
+              <CardHeader
+                title="Imagen Procesada"
+                avatar={<Image sx={{ color: 'white' }} />}
+                action={
+                  <Button
+                    startIcon={<Download />}
+                    variant="contained"
+                    color="primary"
+                    onClick={handleDescargar}
+                    sx={{ 
+                      backgroundColor: 'rgba(255,255,255,0.2)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.3)',
+                      }
+                    }}
+                  >
+                    DESCARGAR
+                  </Button>
+                }
+                sx={{ color: 'white' }}
+              />
+              <CardContent sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                minHeight: '500px',
+                p: 3
+              }}>
+                <ImagenProcesada 
+                  analisisId={analisis.id} 
+                  showThumbnail={false}
+                />
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
+
+        {/* Panel de Información - Lado Derecho (4/12 columnas) */}
+        <Grid item xs={12} lg={4}>
+          {/* Información General */}
+          <Card sx={{ mb: 2 }}>
             <CardHeader
-              title={analisis.id_analisis}
+              title="Información General"
               subheader={
-                <Box display="flex" gap={1} alignItems="center">
+                <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
                   <Chip
                     label={analisis.estado}
                     color={getEstadoColor(analisis.estado) as any}
@@ -146,19 +195,10 @@ const DetalleAnalisis: React.FC = () => {
                   />
                 </Box>
               }
-              action={
-                <Button
-                  startIcon={<Download />}
-                  variant="outlined"
-                  size="small"
-                >
-                  Descargar
-                </Button>
-              }
             />
             <CardContent>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Fecha de Captura:
                   </Typography>
@@ -166,7 +206,7 @@ const DetalleAnalisis: React.FC = () => {
                     {dayjs(analisis.timestamp_captura).format('DD/MM/YYYY HH:mm:ss')}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Fecha de Procesamiento:
                   </Typography>
@@ -174,7 +214,7 @@ const DetalleAnalisis: React.FC = () => {
                     {dayjs(analisis.timestamp_procesamiento).format('DD/MM/YYYY HH:mm:ss')}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Usuario:
                   </Typography>
@@ -182,7 +222,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.usuario_nombre}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Configuración:
                   </Typography>
@@ -190,7 +230,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.configuracion_nombre}
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Resolución:
                   </Typography>
@@ -198,7 +238,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.resolucion_ancho} x {analisis.resolucion_alto} ({analisis.resolucion_canales} canales)
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12}>
                   <Typography variant="body2" color="text.secondary">
                     Tiempo Total:
                   </Typography>
@@ -218,14 +258,14 @@ const DetalleAnalisis: React.FC = () => {
 
           {/* Resultado de Clasificación */}
           {analisis.resultado_clasificacion && (
-            <Card sx={{ mt: 2 }}>
+            <Card sx={{ mb: 2 }}>
               <CardHeader
                 title="Resultado de Clasificación"
                 avatar={<Assessment />}
               />
               <CardContent>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Clase Predicha:
                     </Typography>
@@ -235,7 +275,7 @@ const DetalleAnalisis: React.FC = () => {
                       sx={{ mt: 1 }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Confianza:
                     </Typography>
@@ -243,7 +283,7 @@ const DetalleAnalisis: React.FC = () => {
                       {Math.round(analisis.resultado_clasificacion.confianza * 100)}%
                     </Typography>
                   </Grid>
-                  <Grid item xs={12} sm={4}>
+                  <Grid item xs={12}>
                     <Typography variant="body2" color="text.secondary">
                       Tiempo de Inferencia:
                     </Typography>
@@ -256,6 +296,78 @@ const DetalleAnalisis: React.FC = () => {
             </Card>
           )}
 
+          {/* Tiempos de Procesamiento */}
+          <Card sx={{ mb: 2 }}>
+            <CardHeader
+              title="Tiempos de Procesamiento"
+              avatar={<Schedule />}
+            />
+            <CardContent>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Captura:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_captura_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Clasificación:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_clasificacion_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Detección Piezas:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_deteccion_piezas_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Detección Defectos:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_deteccion_defectos_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Segmentación Defectos:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_segmentacion_defectos_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body2" color="text.secondary">
+                    Segmentación Piezas:
+                  </Typography>
+                  <Typography variant="body1">
+                    {formatTiempo(analisis.tiempo_segmentacion_piezas_ms)}
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Total:
+                  </Typography>
+                  <Typography variant="h6" color="primary">
+                    {formatTiempo(analisis.tiempo_total_ms)}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Secciones adicionales en pantalla completa para pantallas pequeñas */}
+        <Grid item xs={12} lg={12}>
           {/* Detecciones de Piezas */}
           {analisis.detecciones_piezas.length > 0 && (
             <Card sx={{ mt: 2 }}>
@@ -384,21 +496,6 @@ const DetalleAnalisis: React.FC = () => {
             </CardContent>
           </Card>
 
-          {/* Imagen Procesada */}
-          {analisis.estado === 'completado' && (
-            <Card sx={{ mt: 2 }}>
-              <CardHeader
-                title="Imagen Procesada"
-                avatar={<Image />}
-              />
-              <CardContent>
-                <ImagenProcesada 
-                  analisisId={analisis.id} 
-                  showThumbnail={false}
-                />
-              </CardContent>
-            </Card>
-          )}
         </Grid>
       </Grid>
     </Box>
