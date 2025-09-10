@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional, Tuple
 from datetime import datetime
 
 # Importar configuración
-from analisis_config import FileConfig, GlobalConfig
+from config import FileConfig, GlobalConfig
 
 
 def verificar_dependencias() -> bool:

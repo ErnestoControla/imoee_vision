@@ -14,14 +14,11 @@ import sys
 import os
 
 # Importar configuración
-from analisis_config import CameraConfig, StatsConfig, GlobalConfig
+from analisis_coples.expo_config import CameraConfig, StatsConfig, GlobalConfig
 
 # Obtener el código de soporte común para el GigE-V Framework
 sys.path.append("../gigev_common")
 
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'gigev_common'))
 import pygigev
 from pygigev import GevPixelFormats as GPF
 

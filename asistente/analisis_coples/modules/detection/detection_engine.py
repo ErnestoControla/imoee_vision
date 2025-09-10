@@ -14,7 +14,7 @@ import sys
 # Agregar path para imports
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from analisis_config import ModelsConfig, GlobalConfig
+from analisis_coples.expo_config import ModelsConfig, GlobalConfig
 from .yolov11_decoder import YOLOv11Decoder
 
 

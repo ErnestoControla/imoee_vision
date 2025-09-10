@@ -37,9 +37,9 @@ def get_processed_image(request, analisis_id):
         if image_data is None:
             import json
             return HttpResponse(
-                json.dumps({'error': 'No se pudo generar la imagen procesada'}),
+                json.dumps({'error': 'No hay imagen real disponible para este análisis'}),
                 content_type='application/json',
-                status=500
+                status=404
             )
         
         # Devolver la imagen como base64
@@ -75,9 +75,48 @@ def generate_processed_image(analisis: AnalisisCople) -> str:
     Genera una imagen procesada con los resultados superpuestos
     """
     try:
-        # Crear imagen base (640x640)
-        width, height = analisis.resolucion_ancho, analisis.resolucion_alto
-        image = Image.new('RGB', (width, height), color='lightgray')
+        # Intentar cargar la imagen real del análisis
+        image = None
+        try:
+            # Buscar la imagen real en los metadatos
+            if analisis.metadatos_json and 'frame' in analisis.metadatos_json:
+                frame_data = analisis.metadatos_json['frame']
+                
+                # Verificar si es base64 (string) o array de numpy (list)
+                if isinstance(frame_data, str):
+                    # Es base64, decodificar
+                    import base64
+                    try:
+                        frame_bytes = base64.b64decode(frame_data)
+                        frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
+                        frame_array = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+                        if frame_array is not None:
+                            # La imagen ya está en RGB desde el backend, no convertir
+                            image = Image.fromarray(frame_array)
+                            logger.info(f"✅ Imagen real cargada desde base64: {frame_array.shape}")
+                    except Exception as e:
+                        logger.warning(f"Error decodificando base64: {e}")
+                elif isinstance(frame_data, list):
+                    # Es array de numpy serializado como lista
+                    try:
+                        frame_array = np.array(frame_data, dtype=np.uint8)
+                        if len(frame_array.shape) == 3:
+                            # La imagen ya está en RGB desde el backend, no convertir
+                            image = Image.fromarray(frame_array)
+                            logger.info(f"✅ Imagen real cargada desde array: {frame_array.shape}")
+                    except Exception as e:
+                        logger.warning(f"Error procesando array: {e}")
+        except Exception as e:
+            logger.warning(f"No se pudo cargar imagen real: {e}")
+        
+        # Solo usar imagen real - no crear imágenes sintéticas
+        if image is None:
+            logger.warning(f"⚠️ No hay imagen real disponible para análisis {analisis.id}")
+            return None
+        
+        width, height = image.size
+        logger.info(f"✅ Usando imagen real: {width}x{height}")
+        
         draw = ImageDraw.Draw(image)
         
         # Intentar cargar una fuente
@@ -90,8 +129,7 @@ def generate_processed_image(analisis: AnalisisCople) -> str:
             font_medium = ImageFont.load_default()
             font_small = ImageFont.load_default()
         
-        # Dibujar fondo de simulación
-        draw.rectangle([0, 0, width, height], fill='#f0f0f0', outline='#cccccc', width=2)
+        # NO dibujar fondo de simulación - usar solo la imagen real
         
         # Obtener resultados de clasificación
         try:
@@ -191,9 +229,9 @@ def get_analysis_thumbnail(request, analisis_id):
         
         if thumbnail_data is None:
             return HttpResponse(
-                json.dumps({'error': 'No se pudo generar la miniatura'}),
+                json.dumps({'error': 'No hay imagen real disponible para este análisis'}),
                 content_type='application/json',
-                status=500
+                status=404
             )
         
         return HttpResponse(
@@ -254,9 +292,52 @@ def generate_thumbnail(analisis: AnalisisCople) -> str:
     Genera una miniatura de la imagen procesada
     """
     try:
-        # Crear imagen base más pequeña (200x200)
-        width, height = 200, 200
-        image = Image.new('RGB', (width, height), color='lightgray')
+        # Intentar cargar la imagen real del análisis
+        image = None
+        try:
+            # Buscar la imagen real en los metadatos
+            if analisis.metadatos_json and 'frame' in analisis.metadatos_json:
+                frame_data = analisis.metadatos_json['frame']
+                
+                # Verificar si es base64 (string) o array de numpy (list)
+                if isinstance(frame_data, str):
+                    # Es base64, decodificar
+                    import base64
+                    try:
+                        frame_bytes = base64.b64decode(frame_data)
+                        frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
+                        frame_array = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
+                        if frame_array is not None:
+                            # La imagen ya está en RGB desde el backend, no convertir
+                            # Redimensionar a miniatura
+                            original_image = Image.fromarray(frame_array)
+                            image = original_image.resize((200, 200), Image.Resampling.LANCZOS)
+                            logger.info(f"✅ Miniatura real generada desde base64: {frame_array.shape} -> 200x200")
+                    except Exception as e:
+                        logger.warning(f"Error decodificando base64 para miniatura: {e}")
+                elif isinstance(frame_data, list):
+                    # Es array de numpy serializado como lista
+                    try:
+                        frame_array = np.array(frame_data, dtype=np.uint8)
+                        if len(frame_array.shape) == 3:
+                            # La imagen ya está en RGB desde el backend, no convertir
+                            # Redimensionar a miniatura
+                            original_image = Image.fromarray(frame_array)
+                            image = original_image.resize((200, 200), Image.Resampling.LANCZOS)
+                            logger.info(f"✅ Miniatura real generada desde array: {frame_array.shape} -> 200x200")
+                    except Exception as e:
+                        logger.warning(f"Error procesando array para miniatura: {e}")
+        except Exception as e:
+            logger.warning(f"No se pudo cargar imagen real para miniatura: {e}")
+        
+        # Solo usar imagen real - no crear miniaturas sintéticas
+        if image is None:
+            logger.warning(f"⚠️ No hay imagen real disponible para miniatura del análisis {analisis.id}")
+            return None
+        
+        width, height = image.size
+        logger.info(f"✅ Usando miniatura real: {width}x{height}")
+        
         draw = ImageDraw.Draw(image)
         
         # Intentar cargar una fuente pequeña
@@ -265,8 +346,7 @@ def generate_thumbnail(analisis: AnalisisCople) -> str:
         except:
             font = ImageFont.load_default()
         
-        # Dibujar fondo
-        draw.rectangle([0, 0, width, height], fill='#f0f0f0', outline='#cccccc', width=1)
+        # NO dibujar fondo - usar solo la imagen real
         
         # Obtener resultado de clasificación
         try:

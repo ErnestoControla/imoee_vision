@@ -12,7 +12,7 @@ import logging
 
 from ..models import ConfiguracionSistema, AnalisisCople
 from ..resultados_models import EstadisticasSistema
-from ..services_simple import servicio_analisis
+from ..services_real import servicio_analisis_real as servicio_analisis
 from .serializers import (
     ConfiguracionSistemaSerializer,
     AnalisisCopleSerializer,

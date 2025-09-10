@@ -8,7 +8,7 @@ import time
 from typing import Tuple, Optional
 
 # Importar configuración
-from analisis_config import VisualizationConfig, FileConfig
+from analisis_coples.expo_config import VisualizationConfig, FileConfig
 
 
 class ProcesadorImagenClasificacion:

@@ -14,17 +14,17 @@ import sys
 # Agregar path para imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from modules.capture import CamaraTiempoOptimizada
+# from modules.capture import CamaraTiempoOptimizada  # Comentado temporalmente - usar solo webcam
 from modules.capture.webcam_fallback import WebcamFallback, detectar_mejor_webcam
 from modules.classification import ClasificadorCoplesONNX, ProcesadorImagenClasificacion
-from modules.detection import DetectorPiezasCoples, ProcesadorPiezasCoples, DetectorDefectosCoples, ProcesadorDefectos
-from modules.segmentation import SegmentadorDefectosCoples, ProcesadorSegmentacionDefectos
+# from modules.detection import DetectorPiezasCoples, ProcesadorPiezasCoples, DetectorDefectosCoples, ProcesadorDefectos  # Comentado temporalmente
+# from modules.segmentation import SegmentadorDefectosCoples, ProcesadorSegmentacionDefectos  # Comentado temporalmente
 from modules.metadata_standard import MetadataStandard
-from modules.segmentation.segmentation_piezas_engine import SegmentadorPiezasCoples
-from modules.segmentation.piezas_segmentation_processor import ProcesadorSegmentacionPiezas
+# from modules.segmentation.segmentation_piezas_engine import SegmentadorPiezasCoples  # Comentado temporalmente
+# from modules.segmentation.piezas_segmentation_processor import ProcesadorSegmentacionPiezas  # Comentado temporalmente
 from modules.preprocessing.illumination_robust import RobustezIluminacion
 from modules.adaptive_thresholds import UmbralesAdaptativos
-from analisis_config import GlobalConfig, RobustezConfig, WebcamConfig
+from analisis_coples.expo_config import GlobalConfig, RobustezConfig, WebcamConfig
 
 
 class SistemaAnalisisIntegrado:
@@ -118,25 +118,13 @@ class SistemaAnalisisIntegrado:
         try:
             print("🚀 Inicializando sistema integrado de análisis...")
             
-            # 1. Inicializar cámara (con fallback a webcam)
-            print("📷 Inicializando cámara...")
-            self.camara = CamaraTiempoOptimizada()
-            if not self.camara.configurar_camara():
-                print("❌ Error configurando cámara GigE")
-                
-                # Intentar fallback a webcam si está habilitado
-                if WebcamConfig.ENABLE_FALLBACK:
-                    print("🔄 Intentando fallback a webcam...")
-                    if self._inicializar_webcam_fallback():
-                        print("✅ Fallback a webcam exitoso")
-                    else:
-                        print("❌ Error en fallback a webcam")
-                        return False
-                else:
-                    print("❌ Fallback a webcam deshabilitado")
-                    return False
+            # 1. Inicializar webcam directamente (sin cámara GigE)
+            print("📷 Inicializando webcam...")
+            if not self._inicializar_webcam_fallback():
+                print("❌ Error inicializando webcam")
+                return False
             else:
-                print("✅ Cámara GigE inicializada correctamente")
+                print("✅ Webcam inicializada correctamente")
             
             # 2. Inicializar clasificador
             print("🧠 Inicializando clasificador...")
@@ -146,34 +134,34 @@ class SistemaAnalisisIntegrado:
                 return False
             self.procesador_clasificacion = ProcesadorImagenClasificacion()
             
-            # 3. Inicializar detector de piezas
-            print("🎯 Inicializando detector de piezas...")
-            self.detector_piezas = DetectorPiezasCoples()
-            self.procesador_deteccion_piezas = ProcesadorPiezasCoples()
+            # 3. Inicializar detector de piezas (COMENTADO - Solo clasificación)
+            # print("🎯 Inicializando detector de piezas...")
+            # self.detector_piezas = DetectorPiezasCoples()
+            # self.procesador_deteccion_piezas = ProcesadorPiezasCoples()
             
-            # 4. Inicializar detector de defectos
-            print("🎯 Inicializando detector de defectos...")
-            self.detector_defectos = DetectorDefectosCoples()
-            if not self.detector_defectos.inicializar():
-                print("❌ Error inicializando detector de defectos")
-                return False
-            self.procesador_deteccion_defectos = ProcesadorDefectos()
+            # 4. Inicializar detector de defectos (COMENTADO - Solo clasificación)
+            # print("🎯 Inicializando detector de defectos...")
+            # self.detector_defectos = DetectorDefectosCoples()
+            # if not self.detector_defectos.inicializar():
+            #     print("❌ Error inicializando detector de defectos")
+            #     return False
+            # self.procesador_deteccion_defectos = ProcesadorDefectos()
             
-            # 5. Inicializar segmentador de defectos
-            print("🎯 Inicializando segmentador de defectos...")
-            self.segmentador_defectos = SegmentadorDefectosCoples()
-            if not self.segmentador_defectos._inicializar_modelo():
-                print("❌ Error inicializando segmentador de defectos")
-                return False
-            self.procesador_segmentacion_defectos = ProcesadorSegmentacionDefectos()
+            # 5. Inicializar segmentador de defectos (COMENTADO - Solo clasificación)
+            # print("🎯 Inicializando segmentador de defectos...")
+            # self.segmentador_defectos = SegmentadorDefectosCoples()
+            # if not self.segmentador_defectos._inicializar_modelo():
+            #     print("❌ Error inicializando segmentador de defectos")
+            #     return False
+            # self.procesador_segmentacion_defectos = ProcesadorSegmentacionDefectos()
             
-            # 6. Inicializar segmentador de piezas
-            print("🎯 Inicializando segmentador de piezas...")
-            self.segmentador_piezas = SegmentadorPiezasCoples()
-            if not self.segmentador_piezas.stats['inicializado']:
-                print("❌ Error inicializando segmentador de piezas")
-                return False
-            self.procesador_segmentacion_piezas = ProcesadorSegmentacionPiezas()
+            # 6. Inicializar segmentador de piezas (COMENTADO - Solo clasificación)
+            # print("🎯 Inicializando segmentador de piezas...")
+            # self.segmentador_piezas = SegmentadorPiezasCoples()
+            # if not self.segmentador_piezas.stats['inicializado']:
+            #     print("❌ Error inicializando segmentador de piezas")
+            #     return False
+            # self.procesador_segmentacion_piezas = ProcesadorSegmentacionPiezas()
             
             # 7. Iniciar captura continua (solo para cámara GigE)
             if not self.usando_webcam:
@@ -222,12 +210,12 @@ class SistemaAnalisisIntegrado:
         try:
             tiempo_inicio = time.time()
             
-            # Capturar imagen (usando cámara GigE o webcam según corresponda)
-            if self.usando_webcam and self.webcam_fallback is not None:
+            # Capturar imagen usando webcam
+            if self.webcam_fallback is not None:
                 # Para webcam, usar captura síncrona que es más confiable
                 resultado_captura = self.webcam_fallback.obtener_frame_sincrono()
             else:
-                resultado_captura = self.camara.obtener_frame_instantaneo()
+                return {"error": "Webcam no inicializada"}
                 
             if resultado_captura is None or resultado_captura[0] is None:
                 return {"error": "No se pudo capturar imagen"}
@@ -304,119 +292,136 @@ class SistemaAnalisisIntegrado:
             print(f"   Resultado: {clase_predicha} ({confianza:.2%})")
             
             # 4. DETECCIÓN DE PIEZAS (SECUENCIAL)
-            print("\n🎯 EJECUTANDO DETECCIÓN DE PIEZAS...")
+            # DETECCIÓN DE PIEZAS COMENTADA - Solo clasificación
+            # print("\n🎯 EJECUTANDO DETECCIÓN DE PIEZAS...")
+            # 
+            # # SOLUCIÓN CRÍTICA: Reinicializar detector de piezas antes de usar
+            # print("   🔧 Reinicializando detector de piezas...")
+            # try:
+            #     self.detector_piezas.liberar()
+            #     # Crear nueva instancia del detector de piezas
+            #     from modules.detection.detection_engine import DetectorPiezasCoples
+            #     self.detector_piezas = DetectorPiezasCoples(confianza_min=0.55)
+            #     print("   ✅ Detector de piezas reinicializado correctamente")
+            #     
+            #     tiempo_deteccion_piezas_inicio = time.time()
+            #     detecciones_piezas = self.detector_piezas.detectar_piezas(frame)
+            #     tiempo_deteccion_piezas = (time.time() - tiempo_deteccion_piezas_inicio) * 1000
+            #     print(f"✅ Detección de piezas completada en {tiempo_deteccion_piezas:.2f} ms")
+            #     print(f"   Piezas detectadas: {len(detecciones_piezas)}")
+            #     
+            # except Exception as e:
+            #     print(f"❌ ERROR en detección de piezas: {e}")
+            #     detecciones_piezas = []
+            #     tiempo_deteccion_piezas = 0
             
-            # SOLUCIÓN CRÍTICA: Reinicializar detector de piezas antes de usar
-            print("   🔧 Reinicializando detector de piezas...")
-            try:
-                self.detector_piezas.liberar()
-                # Crear nueva instancia del detector de piezas
-                from modules.detection.detection_engine import DetectorPiezasCoples
-                self.detector_piezas = DetectorPiezasCoples(confianza_min=0.55)
-                print("   ✅ Detector de piezas reinicializado correctamente")
-                
-                tiempo_deteccion_piezas_inicio = time.time()
-                detecciones_piezas = self.detector_piezas.detectar_piezas(frame)
-                tiempo_deteccion_piezas = (time.time() - tiempo_deteccion_piezas_inicio) * 1000
-                print(f"✅ Detección de piezas completada en {tiempo_deteccion_piezas:.2f} ms")
-                print(f"   Piezas detectadas: {len(detecciones_piezas)}")
-                
-            except Exception as e:
-                print(f"❌ ERROR en detección de piezas: {e}")
-                detecciones_piezas = []
-                tiempo_deteccion_piezas = 0
+            # Simular detecciones vacías para solo clasificación
+            detecciones_piezas = []
+            tiempo_deteccion_piezas = 0
             
-            # 5. DETECCIÓN DE DEFECTOS (SECUENCIAL)
-            print("\n🔍 EJECUTANDO DETECCIÓN DE DEFECTOS...")
+            # 5. DETECCIÓN DE DEFECTOS (COMENTADA - Solo clasificación)
+            # print("\n🔍 EJECUTANDO DETECCIÓN DE DEFECTOS...")
+            # 
+            # # SOLUCIÓN CRÍTICA: Reinicializar detector de defectos antes de usar
+            # print("   🔧 Reinicializando detector de defectos...")
+            # try:
+            #     self.detector_defectos.liberar()
+            #     if not self.detector_defectos.inicializar():
+            #         print("❌ Error reinicializando detector de defectos")
+            #         detecciones_defectos = []
+            #         tiempo_deteccion_defectos = 0
+            #     else:
+            #         print("   ✅ Detector de defectos reinicializado correctamente")
+            #         
+            #         tiempo_deteccion_defectos_inicio = time.time()
+            #         detecciones_defectos = self.detector_defectos.detectar_defectos(frame)
+            #         tiempo_deteccion_defectos = (time.time() - tiempo_deteccion_defectos_inicio) * 1000
+            #         print(f"✅ Detección de defectos completada en {tiempo_deteccion_defectos:.2f} ms")
+            #         print(f"   Defectos detectados: {len(detecciones_defectos)}")
+            #         
+            # except Exception as e:
+            #     print(f"❌ ERROR en detección de defectos: {e}")
+            #     print(f"   🔍 Frame original intacto - ID: {id(frame)}")
+            #     detecciones_defectos = []
+            #     tiempo_deteccion_defectos = (time.time() - tiempo_deteccion_defectos_inicio) * 1000
             
-            # SOLUCIÓN CRÍTICA: Reinicializar detector de defectos antes de usar
-            print("   🔧 Reinicializando detector de defectos...")
-            try:
-                self.detector_defectos.liberar()
-                if not self.detector_defectos.inicializar():
-                    print("❌ Error reinicializando detector de defectos")
-                    detecciones_defectos = []
-                    tiempo_deteccion_defectos = 0
-                else:
-                    print("   ✅ Detector de defectos reinicializado correctamente")
-                    
-                    tiempo_deteccion_defectos_inicio = time.time()
-                    detecciones_defectos = self.detector_defectos.detectar_defectos(frame)
-                    tiempo_deteccion_defectos = (time.time() - tiempo_deteccion_defectos_inicio) * 1000
-                    print(f"✅ Detección de defectos completada en {tiempo_deteccion_defectos:.2f} ms")
-                    print(f"   Defectos detectados: {len(detecciones_defectos)}")
-                    
-            except Exception as e:
-                print(f"❌ ERROR en detección de defectos: {e}")
-                print(f"   🔍 Frame original intacto - ID: {id(frame)}")
-                detecciones_defectos = []
-                tiempo_deteccion_defectos = (time.time() - tiempo_deteccion_defectos_inicio) * 1000
+            # Simular detecciones vacías para solo clasificación
+            detecciones_defectos = []
+            tiempo_deteccion_defectos = 0
             
-            # 6. SEGMENTACIÓN DE DEFECTOS (SECUENCIAL)
-            print("\n🎨 EJECUTANDO SEGMENTACIÓN DE DEFECTOS...")
-            print(f"🔍 DEBUG - Frame para segmentación:")
-            print(f"   Tipo: {type(frame)}")
-            print(f"   Shape: {frame.shape if hasattr(frame, 'shape') else 'No shape'}")
-            print(f"   Dtype: {frame.dtype if hasattr(frame, 'dtype') else 'No dtype'}")
-            print(f"   Rango valores: [{frame.min() if hasattr(frame, 'min') else 'N/A'}, {frame.max() if hasattr(frame, 'max') else 'N/A'}]")
-            print(f"   ID del objeto: {id(frame)}")
+            # 6. SEGMENTACIÓN DE DEFECTOS (COMENTADA - Solo clasificación)
+            # print("\n🎨 EJECUTANDO SEGMENTACIÓN DE DEFECTOS...")
+            # print(f"🔍 DEBUG - Frame para segmentación:")
+            # print(f"   Tipo: {type(frame)}")
+            # print(f"   Shape: {frame.shape if hasattr(frame, 'shape') else 'No shape'}")
+            # print(f"   Dtype: {frame.dtype if hasattr(frame, 'dtype') else 'No dtype'}")
+            # print(f"   Rango valores: [{frame.min() if hasattr(frame, 'min') else 'N/A'}, {frame.max() if hasattr(frame, 'max') else 'N/A'}]")
+            # print(f"   ID del objeto: {id(frame)}")
+            # 
+            # # SOLUCIÓN CRÍTICA: Reinicializar segmentador antes de usar
+            # print("   🔧 Reinicializando segmentador de defectos...")
+            # tiempo_segmentacion_inicio = time.time()  # Inicializar antes del try
+            # try:
+            #     self.segmentador_defectos.liberar()
+            #     # Crear nueva instancia del segmentador
+            #     from modules.segmentation.segmentation_defectos_engine import SegmentadorDefectosCoples
+            #     self.segmentador_defectos = SegmentadorDefectosCoples(confianza_min=0.55)
+            #     print("   ✅ Segmentador de defectos reinicializado correctamente")
+            #     
+            #     tiempo_segmentacion_inicio = time.time()
+            #     segmentaciones_defectos = self.segmentador_defectos.segmentar_defectos(frame)
+            #     tiempo_segmentacion = (time.time() - tiempo_segmentacion_inicio) * 1000
+            #     print(f"✅ Segmentación de defectos completada en {tiempo_segmentacion:.2f} ms")
+            #     print(f"   Segmentaciones detectadas: {len(segmentaciones_defectos)}")
+            #     
+            # except Exception as e:
+            #     print(f"❌ ERROR en segmentación de defectos: {e}")
+            #     print(f"   🔍 Frame original intacto - ID: {id(frame)}")
+            #     segmentaciones_defectos = []
+            #     tiempo_segmentacion = (time.time() - tiempo_segmentacion_inicio) * 1000
             
-            # SOLUCIÓN CRÍTICA: Reinicializar segmentador antes de usar
-            print("   🔧 Reinicializando segmentador de defectos...")
-            tiempo_segmentacion_inicio = time.time()  # Inicializar antes del try
-            try:
-                self.segmentador_defectos.liberar()
-                # Crear nueva instancia del segmentador
-                from modules.segmentation.segmentation_defectos_engine import SegmentadorDefectosCoples
-                self.segmentador_defectos = SegmentadorDefectosCoples(confianza_min=0.55)
-                print("   ✅ Segmentador de defectos reinicializado correctamente")
-                
-                tiempo_segmentacion_inicio = time.time()
-                segmentaciones_defectos = self.segmentador_defectos.segmentar_defectos(frame)
-                tiempo_segmentacion = (time.time() - tiempo_segmentacion_inicio) * 1000
-                print(f"✅ Segmentación de defectos completada en {tiempo_segmentacion:.2f} ms")
-                print(f"   Segmentaciones detectadas: {len(segmentaciones_defectos)}")
-                
-            except Exception as e:
-                print(f"❌ ERROR en segmentación de defectos: {e}")
-                print(f"   🔍 Frame original intacto - ID: {id(frame)}")
-                segmentaciones_defectos = []
-                tiempo_segmentacion = (time.time() - tiempo_segmentacion_inicio) * 1000
+            # Simular segmentaciones vacías para solo clasificación
+            segmentaciones_defectos = []
+            tiempo_segmentacion = 0
             
-            # 6. SEGMENTACIÓN DE PIEZAS (SECUENCIAL)
-            print("\n🎨 EJECUTANDO SEGMENTACIÓN DE PIEZAS...")
-            print(f"🔍 DEBUG - Frame para segmentación de piezas:")
-            print(f"   Tipo: {type(frame)}")
-            print(f"   Shape: {frame.shape if hasattr(frame, 'shape') else 'No shape'}")
-            print(f"   Dtype: {frame.dtype if hasattr(frame, 'dtype') else 'No dtype'}")
-            print(f"   Rango valores: [{frame.min() if hasattr(frame, 'min') else 'N/A'}, {frame.max() if hasattr(frame, 'max') else 'N/A'}]")
-            print(f"   ID del objeto: {id(frame)}")
+            # 6. SEGMENTACIÓN DE PIEZAS (COMENTADA - Solo clasificación)
+            # print("\n🎨 EJECUTANDO SEGMENTACIÓN DE PIEZAS...")
+            # print(f"🔍 DEBUG - Frame para segmentación de piezas:")
+            # print(f"   Tipo: {type(frame)}")
+            # print(f"   Shape: {frame.shape if hasattr(frame, 'shape') else 'No shape'}")
+            # print(f"   Dtype: {frame.dtype if hasattr(frame, 'dtype') else 'No dtype'}")
+            # print(f"   Rango valores: [{frame.min() if hasattr(frame, 'min') else 'N/A'}, {frame.max() if hasattr(frame, 'max') else 'N/A'}]")
+            # print(f"   ID del objeto: {id(frame)}")
+            # 
+            # # SOLUCIÓN CRÍTICA: Reinicializar segmentador de piezas antes de usar
+            # print("   🔧 Reinicializando segmentador de piezas...")
+            # try:
+            #     self.segmentador_piezas.liberar()
+            #     # Recrear segmentador de piezas
+            #     from modules.segmentation.segmentation_piezas_engine import SegmentadorPiezasCoples
+            #     self.segmentador_piezas = SegmentadorPiezasCoples()
+            #     if not self.segmentador_piezas.stats['inicializado']:
+            #         print("   ❌ Error reinicializando segmentador de piezas")
+            #         segmentaciones_piezas = []
+            #         tiempo_segmentacion_piezas = 0
+            #     else:
+            #         print("   ✅ Segmentador de piezas reinicializado correctamente")
+            #         
+            #         tiempo_segmentacion_piezas_inicio = time.time()
+            #         segmentaciones_piezas = self.segmentador_piezas.segmentar(frame)
+            #         tiempo_segmentacion_piezas = (time.time() - tiempo_segmentacion_piezas_inicio) * 1000
+            #         print(f"✅ Segmentación de piezas completada en {tiempo_segmentacion_piezas:.2f} ms")
+            #         print(f"   Segmentaciones detectadas: {len(segmentaciones_piezas)}")
+            #     
+            # except Exception as e:
+            #     print(f"❌ ERROR en segmentación de piezas: {e}")
+            #     print(f"   🔍 Frame original intacto - ID: {id(frame)}")
+            #     segmentaciones_piezas = []
+            #     tiempo_segmentacion_piezas = 0
             
-            # SOLUCIÓN CRÍTICA: Reinicializar segmentador de piezas antes de usar
-            print("   🔧 Reinicializando segmentador de piezas...")
-            try:
-                self.segmentador_piezas.liberar()
-                # Recrear segmentador de piezas
-                from modules.segmentation.segmentation_piezas_engine import SegmentadorPiezasCoples
-                self.segmentador_piezas = SegmentadorPiezasCoples()
-                if not self.segmentador_piezas.stats['inicializado']:
-                    print("   ❌ Error reinicializando segmentador de piezas")
-                    segmentaciones_piezas = []
-                    tiempo_segmentacion_piezas = 0
-                else:
-                    print("   ✅ Segmentador de piezas reinicializado correctamente")
-                    
-                    tiempo_segmentacion_piezas_inicio = time.time()
-                    segmentaciones_piezas = self.segmentador_piezas.segmentar(frame)
-                    tiempo_segmentacion_piezas = (time.time() - tiempo_segmentacion_piezas_inicio) * 1000
-                    print(f"✅ Segmentación de piezas completada en {tiempo_segmentacion_piezas:.2f} ms")
-                    print(f"   Segmentaciones detectadas: {len(segmentaciones_piezas)}")
-                
-            except Exception as e:
-                print(f"❌ ERROR en segmentación de piezas: {e}")
-                print(f"   🔍 Frame original intacto - ID: {id(frame)}")
-                segmentaciones_piezas = []
-                tiempo_segmentacion_piezas = 0
+            # Simular segmentaciones vacías para solo clasificación
+            segmentaciones_piezas = []
+            tiempo_segmentacion_piezas = 0
             
             # 7. Calcular tiempo total (suma de todos los tiempos de procesamiento + captura)
             tiempo_procesamiento_total = (time.time() - tiempo_inicio_total) * 1000
