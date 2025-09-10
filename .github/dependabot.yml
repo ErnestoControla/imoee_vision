@@ -1,0 +1,22 @@
+version: 2
+updates:
+  # Backend Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/asistente"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Frontend Node.js dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/asistente"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
