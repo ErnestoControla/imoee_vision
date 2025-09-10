@@ -9,3 +9,4 @@ Pillow>=9.5.0
 
 # Dependencias adicionales para el sistema de análisis
 coloredlogs>=15.0
+matplotlib>=3.8.0

@@ -157,9 +157,18 @@ class AnalisisCopleViewSet(viewsets.ReadOnlyModelViewSet):
                 resultado = servicio_analisis.realizar_analisis_completo(request.user)
             elif tipo_analisis == 'clasificacion':
                 resultado = servicio_analisis.realizar_analisis_clasificacion(request.user)
+            elif tipo_analisis == 'deteccion_piezas':
+                resultado = servicio_analisis.realizar_analisis_deteccion_piezas(request.user)
+            elif tipo_analisis == 'deteccion_defectos':
+                resultado = servicio_analisis.realizar_analisis_deteccion_defectos(request.user)
+            elif tipo_analisis == 'segmentacion_defectos':
+                resultado = servicio_analisis.realizar_analisis_segmentacion_defectos(request.user)
+            elif tipo_analisis == 'segmentacion_piezas':
+                resultado = servicio_analisis.realizar_analisis_segmentacion_piezas(request.user)
             else:
-                # Para otros tipos de análisis, usar análisis completo por ahora
-                resultado = servicio_analisis.realizar_analisis_completo(request.user)
+                return Response({
+                    'error': f'Tipo de análisis no válido: {tipo_analisis}'
+                }, status=status.HTTP_400_BAD_REQUEST)
             
             if 'error' in resultado:
                 return Response(resultado, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

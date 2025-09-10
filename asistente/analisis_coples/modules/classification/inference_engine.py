@@ -10,7 +10,7 @@ import json
 from typing import Tuple, Dict, Any, Optional
 
 # Importar configuración
-from analisis_coples.expo_config import ModelsConfig, GlobalConfig
+from expo_config import ModelsConfig, GlobalConfig
 
 
 class ClasificadorCoplesONNX:

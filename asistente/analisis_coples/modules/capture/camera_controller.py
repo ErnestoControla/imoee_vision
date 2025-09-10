@@ -14,13 +14,20 @@ import sys
 import os
 
 # Importar configuración
-from analisis_coples.expo_config import CameraConfig, StatsConfig, GlobalConfig
+from expo_config import CameraConfig, StatsConfig, GlobalConfig
 
 # Obtener el código de soporte común para el GigE-V Framework
-sys.path.append("../gigev_common")
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "gigev_common"))
 
-import pygigev
-from pygigev import GevPixelFormats as GPF
+try:
+    import pygigev
+    from pygigev import GevPixelFormats as GPF
+    GIGEV_AVAILABLE = True
+except (ImportError, OSError) as e:
+    print(f"⚠️ pygigev no disponible o error al cargar librería GigE: {e}. Usando solo webcam.")
+    GIGEV_AVAILABLE = False
+    pygigev = None
+    GPF = None
 
 
 class CamaraTiempoOptimizada:
@@ -47,6 +54,7 @@ class CamaraTiempoOptimizada:
         self.buffer_addresses = None
         self.frame_count = 0
         self.camIndex = -1
+        self.gigev_available = GIGEV_AVAILABLE
         
         # Parámetros de configuración desde config.py
         self.exposure_time = CameraConfig.EXPOSURE_TIME
@@ -94,6 +102,10 @@ class CamaraTiempoOptimizada:
         Returns:
             bool: True si la configuración fue exitosa
         """
+        if not self.gigev_available:
+            print("⚠️ GigE no disponible, usando webcam como fallback")
+            return False
+            
         try:
             # Inicializar API GigE
             pygigev.GevApiInitialize()

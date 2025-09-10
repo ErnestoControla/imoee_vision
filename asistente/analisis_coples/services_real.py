@@ -312,6 +312,282 @@ class ServicioAnalisisCoplesReal:
         except Exception as e:
             logger.error(f"Error en análisis de clasificación: {e}")
             return {"error": str(e)}
+
+    def realizar_analisis_deteccion_piezas(self, usuario=None) -> Dict[str, Any]:
+        """
+        Realiza solo detección de piezas
+        
+        Args:
+            usuario: Usuario que realiza el análisis
+            
+        Returns:
+            Dict con los resultados del análisis
+        """
+        if not self.inicializado:
+            return {"error": "Sistema no inicializado"}
+        
+        try:
+            # Generar ID único para el análisis
+            id_analisis = f"deteccion_piezas_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+            
+            logger.info(f"🔄 Iniciando análisis de detección de piezas: {id_analisis}")
+            
+            # Capturar imagen de la cámara
+            imagen_capturada = self._capturar_imagen()
+            if imagen_capturada is None:
+                return {"error": "No se pudo capturar imagen de la cámara"}
+            
+            logger.info(f"📸 Imagen capturada: {imagen_capturada.shape}")
+            
+            # Crear registro de análisis en la base de datos
+            analisis_db = AnalisisCople.objects.create(
+                id_analisis=id_analisis,
+                timestamp_captura=timezone.now(),
+                tipo_analisis='deteccion_piezas',
+                estado='procesando',
+                configuracion=self.configuracion_activa,
+                usuario=usuario,
+                archivo_imagen=f"real_{id_analisis}.jpg",
+                archivo_json=f"real_{id_analisis}.json",
+                resolucion_ancho=imagen_capturada.shape[1],
+                resolucion_alto=imagen_capturada.shape[0],
+                resolucion_canales=imagen_capturada.shape[2] if len(imagen_capturada.shape) > 2 else 1,
+                tiempo_captura_ms=50.0,
+                tiempo_clasificacion_ms=0.0,
+                tiempo_deteccion_piezas_ms=0.0,
+                tiempo_deteccion_defectos_ms=0.0,
+                tiempo_segmentacion_defectos_ms=0.0,
+                tiempo_segmentacion_piezas_ms=0.0,
+                tiempo_total_ms=0.0,
+                metadatos_json={}
+            )
+            
+            logger.info(f"📝 Registro de análisis creado en BD: {analisis_db.id}")
+            
+            # Realizar análisis de detección de piezas usando el sistema real
+            resultados = self.sistema_analisis.solo_deteccion()
+            
+            # Procesar resultados
+            self._procesar_resultados_analisis(analisis_db, resultados, imagen_capturada)
+            
+            logger.info(f"✅ Análisis de detección de piezas finalizado: {id_analisis}")
+            
+            return {
+                "id_analisis": id_analisis,
+                "estado": "completado",
+                "resultados": resultados
+            }
+            
+        except Exception as e:
+            logger.error(f"Error en análisis de detección de piezas: {e}")
+            return {"error": str(e)}
+
+    def realizar_analisis_deteccion_defectos(self, usuario=None) -> Dict[str, Any]:
+        """
+        Realiza solo detección de defectos
+        
+        Args:
+            usuario: Usuario que realiza el análisis
+            
+        Returns:
+            Dict con los resultados del análisis
+        """
+        if not self.inicializado:
+            return {"error": "Sistema no inicializado"}
+        
+        try:
+            # Generar ID único para el análisis
+            id_analisis = f"deteccion_defectos_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+            
+            logger.info(f"🔄 Iniciando análisis de detección de defectos: {id_analisis}")
+            
+            # Capturar imagen de la cámara
+            imagen_capturada = self._capturar_imagen()
+            if imagen_capturada is None:
+                return {"error": "No se pudo capturar imagen de la cámara"}
+            
+            logger.info(f"📸 Imagen capturada: {imagen_capturada.shape}")
+            
+            # Crear registro de análisis en la base de datos
+            analisis_db = AnalisisCople.objects.create(
+                id_analisis=id_analisis,
+                timestamp_captura=timezone.now(),
+                tipo_analisis='deteccion_defectos',
+                estado='procesando',
+                configuracion=self.configuracion_activa,
+                usuario=usuario,
+                archivo_imagen=f"real_{id_analisis}.jpg",
+                archivo_json=f"real_{id_analisis}.json",
+                resolucion_ancho=imagen_capturada.shape[1],
+                resolucion_alto=imagen_capturada.shape[0],
+                resolucion_canales=imagen_capturada.shape[2] if len(imagen_capturada.shape) > 2 else 1,
+                tiempo_captura_ms=50.0,
+                tiempo_clasificacion_ms=0.0,
+                tiempo_deteccion_piezas_ms=0.0,
+                tiempo_deteccion_defectos_ms=0.0,
+                tiempo_segmentacion_defectos_ms=0.0,
+                tiempo_segmentacion_piezas_ms=0.0,
+                tiempo_total_ms=0.0,
+                metadatos_json={}
+            )
+            
+            logger.info(f"📝 Registro de análisis creado en BD: {analisis_db.id}")
+            
+            # Realizar análisis de detección de defectos usando el sistema real
+            resultados = self.sistema_analisis.solo_deteccion_defectos()
+            
+            # Procesar resultados
+            self._procesar_resultados_analisis(analisis_db, resultados, imagen_capturada)
+            
+            logger.info(f"✅ Análisis de detección de defectos finalizado: {id_analisis}")
+            
+            return {
+                "id_analisis": id_analisis,
+                "estado": "completado",
+                "resultados": resultados
+            }
+            
+        except Exception as e:
+            logger.error(f"Error en análisis de detección de defectos: {e}")
+            return {"error": str(e)}
+
+    def realizar_analisis_segmentacion_defectos(self, usuario=None) -> Dict[str, Any]:
+        """
+        Realiza solo segmentación de defectos
+        
+        Args:
+            usuario: Usuario que realiza el análisis
+            
+        Returns:
+            Dict con los resultados del análisis
+        """
+        if not self.inicializado:
+            return {"error": "Sistema no inicializado"}
+        
+        try:
+            # Generar ID único para el análisis
+            id_analisis = f"segmentacion_defectos_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+            
+            logger.info(f"🔄 Iniciando análisis de segmentación de defectos: {id_analisis}")
+            
+            # Capturar imagen de la cámara
+            imagen_capturada = self._capturar_imagen()
+            if imagen_capturada is None:
+                return {"error": "No se pudo capturar imagen de la cámara"}
+            
+            logger.info(f"📸 Imagen capturada: {imagen_capturada.shape}")
+            
+            # Crear registro de análisis en la base de datos
+            analisis_db = AnalisisCople.objects.create(
+                id_analisis=id_analisis,
+                timestamp_captura=timezone.now(),
+                tipo_analisis='segmentacion_defectos',
+                estado='procesando',
+                configuracion=self.configuracion_activa,
+                usuario=usuario,
+                archivo_imagen=f"real_{id_analisis}.jpg",
+                archivo_json=f"real_{id_analisis}.json",
+                resolucion_ancho=imagen_capturada.shape[1],
+                resolucion_alto=imagen_capturada.shape[0],
+                resolucion_canales=imagen_capturada.shape[2] if len(imagen_capturada.shape) > 2 else 1,
+                tiempo_captura_ms=50.0,
+                tiempo_clasificacion_ms=0.0,
+                tiempo_deteccion_piezas_ms=0.0,
+                tiempo_deteccion_defectos_ms=0.0,
+                tiempo_segmentacion_defectos_ms=0.0,
+                tiempo_segmentacion_piezas_ms=0.0,
+                tiempo_total_ms=0.0,
+                metadatos_json={}
+            )
+            
+            logger.info(f"📝 Registro de análisis creado en BD: {analisis_db.id}")
+            
+            # Realizar análisis de segmentación de defectos usando el sistema real
+            resultados = self.sistema_analisis.solo_segmentacion_defectos()
+            
+            # Procesar resultados
+            self._procesar_resultados_analisis(analisis_db, resultados, imagen_capturada)
+            
+            logger.info(f"✅ Análisis de segmentación de defectos finalizado: {id_analisis}")
+            
+            return {
+                "id_analisis": id_analisis,
+                "estado": "completado",
+                "resultados": resultados
+            }
+            
+        except Exception as e:
+            logger.error(f"Error en análisis de segmentación de defectos: {e}")
+            return {"error": str(e)}
+
+    def realizar_analisis_segmentacion_piezas(self, usuario=None) -> Dict[str, Any]:
+        """
+        Realiza solo segmentación de piezas
+        
+        Args:
+            usuario: Usuario que realiza el análisis
+            
+        Returns:
+            Dict con los resultados del análisis
+        """
+        if not self.inicializado:
+            return {"error": "Sistema no inicializado"}
+        
+        try:
+            # Generar ID único para el análisis
+            id_analisis = f"segmentacion_piezas_{uuid.uuid4().hex[:8]}_{int(time.time())}"
+            
+            logger.info(f"🔄 Iniciando análisis de segmentación de piezas: {id_analisis}")
+            
+            # Capturar imagen de la cámara
+            imagen_capturada = self._capturar_imagen()
+            if imagen_capturada is None:
+                return {"error": "No se pudo capturar imagen de la cámara"}
+            
+            logger.info(f"📸 Imagen capturada: {imagen_capturada.shape}")
+            
+            # Crear registro de análisis en la base de datos
+            analisis_db = AnalisisCople.objects.create(
+                id_analisis=id_analisis,
+                timestamp_captura=timezone.now(),
+                tipo_analisis='segmentacion_piezas',
+                estado='procesando',
+                configuracion=self.configuracion_activa,
+                usuario=usuario,
+                archivo_imagen=f"real_{id_analisis}.jpg",
+                archivo_json=f"real_{id_analisis}.json",
+                resolucion_ancho=imagen_capturada.shape[1],
+                resolucion_alto=imagen_capturada.shape[0],
+                resolucion_canales=imagen_capturada.shape[2] if len(imagen_capturada.shape) > 2 else 1,
+                tiempo_captura_ms=50.0,
+                tiempo_clasificacion_ms=0.0,
+                tiempo_deteccion_piezas_ms=0.0,
+                tiempo_deteccion_defectos_ms=0.0,
+                tiempo_segmentacion_defectos_ms=0.0,
+                tiempo_segmentacion_piezas_ms=0.0,
+                tiempo_total_ms=0.0,
+                metadatos_json={}
+            )
+            
+            logger.info(f"📝 Registro de análisis creado en BD: {analisis_db.id}")
+            
+            # Realizar análisis de segmentación de piezas usando el sistema real
+            resultados = self.sistema_analisis.solo_segmentacion_piezas()
+            
+            # Procesar resultados
+            self._procesar_resultados_analisis(analisis_db, resultados, imagen_capturada)
+            
+            logger.info(f"✅ Análisis de segmentación de piezas finalizado: {id_analisis}")
+            
+            return {
+                "id_analisis": id_analisis,
+                "estado": "completado",
+                "resultados": resultados
+            }
+            
+        except Exception as e:
+            logger.error(f"Error en análisis de segmentación de piezas: {e}")
+            return {"error": str(e)}
     
     def _capturar_imagen(self) -> Optional[np.ndarray]:
         """Captura una imagen usando el sistema integrado"""

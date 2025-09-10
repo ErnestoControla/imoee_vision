@@ -27,12 +27,14 @@ interface AnalisisCardProps {
   analisis: AnalisisCopleList;
   onView?: (id: number) => void;
   onDownload?: (id: number) => void;
+  compact?: boolean;
 }
 
 const AnalisisCard: React.FC<AnalisisCardProps> = ({
   analisis,
   onView,
   onDownload,
+  compact = false,
 }) => {
   const getEstadoColor = (estado: string) => {
     switch (estado) {

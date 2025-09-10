@@ -27,6 +27,7 @@ import type { AnalisisCopleList, EstadoSistema } from '../api/analisis';
 import AnalisisCard from '../components/AnalisisCard';
 import EstadisticasCard from '../components/EstadisticasCard';
 import CameraPreview from '../components/CameraPreview';
+import AnalisisRecientesPorTipo from '../components/AnalisisRecientesPorTipo';
 import { useAuth } from '../context/AuthContext';
 import Swal from 'sweetalert2';
 
@@ -331,6 +332,10 @@ const AnalisisCoples: React.FC = () => {
                   >
                     <MenuItem value="completo">Análisis Completo</MenuItem>
                     <MenuItem value="clasificacion">Solo Clasificación</MenuItem>
+                    <MenuItem value="deteccion_piezas">Solo Detección de Piezas</MenuItem>
+                    <MenuItem value="deteccion_defectos">Solo Detección de Defectos</MenuItem>
+                    <MenuItem value="segmentacion_defectos">Solo Segmentación de Defectos</MenuItem>
+                    <MenuItem value="segmentacion_piezas">Solo Segmentación de Piezas</MenuItem>
                   </Select>
                 </FormControl>
                 <Button
@@ -376,32 +381,22 @@ const AnalisisCoples: React.FC = () => {
       </Card>
 
 
-      {/* Análisis Recientes */}
+      {/* Análisis Recientes por Tipo */}
       <Card sx={{ 
         background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
         color: 'white',
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
       }}>
         <CardContent>
-          <Typography variant="h6" gutterBottom sx={{ color: 'white', fontWeight: 'bold' }}>
-            Análisis Recientes
-          </Typography>
           {analisisRecientes.length === 0 ? (
             <Typography sx={{ color: 'rgba(255,255,255,0.8)', textAlign: 'center', py: 4 }}>
               No hay análisis recientes
             </Typography>
           ) : (
-            <Box display="flex" flexWrap="wrap" gap={2}>
-              {analisisRecientes.map((analisis) => (
-                <Box key={analisis.id} minWidth="300px" flex="1 1 300px">
-                  <AnalisisCard
-                    analisis={analisis}
-                    onView={handleVerAnalisis}
-                    onDownload={handleDescargarAnalisis}
-                  />
-                </Box>
-              ))}
-            </Box>
+            <AnalisisRecientesPorTipo
+              analisis={analisisRecientes}
+              onView={handleVerAnalisis}
+            />
           )}
         </CardContent>
       </Card>

@@ -10,7 +10,7 @@ import os
 from typing import List, Dict, Tuple, Optional
 
 # Importar configuración
-from analisis_coples.expo_config import ModelsConfig, GlobalConfig
+from expo_config import ModelsConfig, GlobalConfig
 
 # Importar decodificador YOLOv11
 from .yolov11_decoder import YOLOv11Decoder

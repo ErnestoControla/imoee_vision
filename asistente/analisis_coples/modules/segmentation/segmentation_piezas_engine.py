@@ -11,7 +11,7 @@ import os
 from typing import List, Dict, Tuple, Optional
 
 # Importar configuración
-from analisis_coples.expo_config import ModelsConfig, GlobalConfig
+from expo_config import ModelsConfig, GlobalConfig
 
 
 class SegmentadorPiezasCoples:

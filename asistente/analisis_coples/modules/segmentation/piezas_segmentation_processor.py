@@ -15,7 +15,7 @@ from typing import List, Dict, Tuple, Optional
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 # Importar configuración
-from analisis_coples.expo_config import FileConfig, VisualizationConfig
+from expo_config import FileConfig, VisualizationConfig
 from modules.postprocessing.mask_fusion import FusionadorMascaras
 from modules.metadata_standard import MetadataStandard
 

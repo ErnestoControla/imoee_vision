@@ -8,7 +8,7 @@ import time
 from typing import Tuple, Optional
 
 # Importar configuración
-from analisis_coples.expo_config import VisualizationConfig, FileConfig
+from expo_config import VisualizationConfig, FileConfig
 
 
 class ProcesadorImagenClasificacion:
@@ -58,14 +58,6 @@ class ProcesadorImagenClasificacion:
             np.ndarray: Imagen con anotaciones
         """
         try:
-            # Asegurar que la imagen esté en formato uint8 (como en Expo_modelos)
-            if imagen.dtype != np.uint8:
-                if imagen.dtype == np.float32 or imagen.dtype == np.float64:
-                    # Asumir que está en rango [0, 1] y convertir a [0, 255]
-                    imagen = (imagen * 255).astype(np.uint8)
-                else:
-                    imagen = imagen.astype(np.uint8)
-            
             # Crear copia de la imagen
             imagen_anotada = imagen.copy()
             
