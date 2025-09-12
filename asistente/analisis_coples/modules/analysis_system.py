@@ -161,19 +161,27 @@ class SistemaAnalisisIntegrado:
             
             # 5. Inicializar segmentador de defectos
             print("🎯 Inicializando segmentador de defectos...")
-            self.segmentador_defectos = SegmentadorDefectosCoples()
-            if not self.segmentador_defectos._inicializar_modelo():
-                print("❌ Error inicializando segmentador de defectos")
+            try:
+                self.segmentador_defectos = SegmentadorDefectosCoples()
+                self.procesador_segmentacion_defectos = ProcesadorSegmentacionDefectos(
+                    output_dir=self.directorios_salida["segmentacion_defectos"]
+                )
+                print("✅ Segmentador de defectos inicializado correctamente")
+            except Exception as e:
+                print(f"❌ Error inicializando segmentador de defectos: {e}")
                 return False
-            self.procesador_segmentacion_defectos = ProcesadorSegmentacionDefectos()
             
             # 6. Inicializar segmentador de piezas
             print("🎯 Inicializando segmentador de piezas...")
-            self.segmentador_piezas = SegmentadorPiezasCoples()
-            if not self.segmentador_piezas.stats['inicializado']:
-                print("❌ Error inicializando segmentador de piezas")
+            try:
+                self.segmentador_piezas = SegmentadorPiezasCoples()
+                self.procesador_segmentacion_piezas = ProcesadorSegmentacionPiezas(
+                    output_dir=self.directorios_salida["segmentacion_piezas"]
+                )
+                print("✅ Segmentador de piezas inicializado correctamente")
+            except Exception as e:
+                print(f"❌ Error inicializando segmentador de piezas: {e}")
                 return False
-            self.procesador_segmentacion_piezas = ProcesadorSegmentacionPiezas()
             
             # 7. Iniciar captura continua (solo para cámara GigE)
             if not self.usando_webcam:
@@ -877,7 +885,8 @@ class SistemaAnalisisIntegrado:
             self.procesador_segmentacion_piezas.procesar_segmentaciones(
                 resultados["frame"],
                 resultados["segmentaciones_piezas"],
-                timestamp_captura
+                timestamp_captura,
+                resultados.get("tiempos", {})
             )
             
             print(f"   📁 Segmentación de piezas guardada en: {self.directorios_salida['segmentacion_piezas']}")

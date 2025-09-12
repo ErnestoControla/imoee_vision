@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/",
   headers: { "Content-Type": "application/json" },
-  withCredentials: false, // Cambia a true si usas cookies
+  withCredentials: true, // Necesario para CORS con credenciales
 });
 
 // Antes de cada petición comprobamos el token...
@@ -19,8 +19,8 @@ API.interceptors.request.use(async (config) => {
     // Si queda menos de 1 minuto de vida, hacemos refresh
     if (dayjs().add(1, "minute").isAfter(exp) && refresh) {
       try {
-        const { data } = await axios.post(
-          `${API.defaults.baseURL}token/refresh/`,
+        const { data } = await API.post(
+          `token/refresh/`,
           { refresh }
         );
         // Guardamos nuevo access y su expiración

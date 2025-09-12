@@ -64,9 +64,12 @@ const LoginPage: React.FC = () => {
     e.preventDefault();
     setError('');
     try {
+      console.log('🔐 LoginPage: Iniciando login...');
       await login(username, password);
+      console.log('✅ LoginPage: Login exitoso, redirigiendo...');
       navigate('/');
-    } catch {
+    } catch (error) {
+      console.error('❌ LoginPage: Error en login:', error);
       setError('Usuario o contraseña incorrectos.');
     }
   };

@@ -5,8 +5,8 @@ export interface UsuarioPerfil {
   username: string;
   email: string;
   name?: string;
-  rol: number;
-  rol_nombre: string;
+  rol: number | null;
+  rol_nombre?: string;
 }
 
 export interface UsuarioPayload {

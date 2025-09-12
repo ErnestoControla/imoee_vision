@@ -30,8 +30,10 @@ class ProcesadorSegmentacionDefectos:
     - Guardado de resultados en JPG y JSON
     """
     
-    def __init__(self):
+    def __init__(self, output_dir: str = None):
         """Inicializa el procesador de segmentación de defectos."""
+        # Directorio de salida
+        self.output_dir = output_dir or "/tmp/segmentacion_defectos"
         # Colores para diferentes clases de defectos
         self.colores_defectos = {
             "Defecto_Seg_1": (0, 0, 255),      # Rojo
@@ -442,31 +444,46 @@ class MaskVisualizer:
         """
         Visualización completa de máscaras con múltiples opciones
         """
+        print(f"🎭 [DEBUG] visualizar_mascaras_completo iniciado")
+        print(f"   🖼️ Imagen entrada: {imagen.shape}, dtype: {imagen.dtype}")
+        print(f"   📊 Segmentaciones: {len(segmentaciones) if segmentaciones else 0}")
+        
         if not segmentaciones:
             print("   ⚠️  No hay segmentaciones para visualizar")
             return imagen.copy()
         
         resultado = imagen.copy()
+        print(f"   🖼️ Imagen resultado inicializada: {resultado.shape}, dtype: {resultado.dtype}")
         
         print(f"🎨 Dibujando {len(segmentaciones)} máscaras...")
         
         for i, seg in enumerate(segmentaciones):
+            print(f"   🎭 [DEBUG] Procesando segmentación {i}")
+            print(f"      📋 Claves disponibles: {list(seg.keys()) if isinstance(seg, dict) else 'No es dict'}")
+            
             color = self.colors[i % len(self.colors)]
+            print(f"      🎨 Color asignado: {color}")
             
             # 1. VERIFICAR DATOS DE LA MÁSCARA (CORREGIDO)
             mask_data = seg.get('mascara')  # ← CAMBIO: 'mask' por 'mascara'
+            print(f"      🎭 Datos de máscara: {type(mask_data)}")
+            
             if mask_data is None:
                 print(f"   ⚠️  Segmentación {i}: Sin datos de máscara")
                 continue
             
             # 2. CONVERTIR MÁSCARA A NUMPY
+            print(f"      🔄 Convirtiendo máscara a numpy...")
             if isinstance(mask_data, list):
+                print(f"         📋 Es lista, convirtiendo a array")
                 mask = np.array(mask_data, dtype=np.float32)
             else:
+                print(f"         📋 Es {type(mask_data)}, convirtiendo a float32")
                 mask = mask_data.astype(np.float32)
             
             # 3. VERIFICAR DIMENSIONES
             print(f"   📐 Máscara {i}: {mask.shape}, rango: [{mask.min():.3f}, {mask.max():.3f}]")
+            print(f"      🎭 Dtype: {mask.dtype}")
             
             if len(mask.shape) != 2:
                 print(f"   ❌ Máscara {i}: Dimensiones incorrectas {mask.shape}")
@@ -476,12 +493,16 @@ class MaskVisualizer:
             if mask.shape != imagen.shape[:2]:
                 print(f"   🔄 Redimensionando máscara de {mask.shape} a {imagen.shape[:2]}")
                 mask = cv2.resize(mask, (imagen.shape[1], imagen.shape[0]))
+                print(f"      ✅ Máscara redimensionada: {mask.shape}")
             
             # 5. BINARIZAR MÁSCARA
+            print(f"      🔢 Binarizando máscara con umbral 0.5...")
             mask_binary = (mask > 0.5).astype(np.uint8)
+            print(f"      📊 Máscara binaria: {mask_binary.shape}, dtype: {mask_binary.dtype}")
             
             # 6. VERIFICAR SI LA MÁSCARA TIENE CONTENIDO
             pixels_activos = np.sum(mask_binary)
+            print(f"      🎯 Píxeles activos: {pixels_activos}")
             if pixels_activos == 0:
                 print(f"   ⚠️  Máscara {i}: Sin píxeles activos después de binarizar")
                 continue
@@ -507,12 +528,31 @@ class MaskVisualizer:
         """
         Aplica overlay de máscara con múltiples técnicas
         """
+        print(f"      🎨 [DEBUG] _aplicar_overlay iniciado para máscara {index}")
+        print(f"         🖼️ Imagen entrada: {imagen.shape}, dtype: {imagen.dtype}")
+        print(f"         🎭 Máscara binaria: {mask_binary.shape}, dtype: {mask_binary.dtype}")
+        print(f"         🎨 Color: {color}")
+        
         resultado = imagen.copy()
+        print(f"         🖼️ Imagen resultado copiada: {resultado.shape}, dtype: {resultado.dtype}")
         
         # TÉCNICA 1: Overlay semitransparente
+        print(f"         🎨 Aplicando overlay semitransparente...")
         overlay = resultado.copy()
+        print(f"         🎨 Overlay creado: {overlay.shape}, dtype: {overlay.dtype}")
+        
+        # Verificar píxeles que se van a modificar
+        pixels_to_modify = np.sum(mask_binary > 0)
+        print(f"         🎯 Píxeles a modificar: {pixels_to_modify}")
+        
         overlay[mask_binary > 0] = color
+        print(f"         🎨 Overlay modificado con color {color}")
+        
         resultado = cv2.addWeighted(resultado, 0.7, overlay, 0.3, 0)
+        print(f"         ✅ Overlay aplicado con addWeighted")
+        print(f"         🖼️ Imagen resultado final: {resultado.shape}, dtype: {resultado.dtype}")
+        print(f"         🎨 Valores únicos en resultado: {len(np.unique(resultado))}")
+        print(f"         🎨 Rango de valores: [{resultado.min()}, {resultado.max()}]")
         
         # TÉCNICA 2: Contornos de la máscara
         contornos, _ = cv2.findContours(mask_binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

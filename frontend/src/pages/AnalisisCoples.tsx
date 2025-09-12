@@ -75,8 +75,8 @@ const AnalisisCoples: React.FC = () => {
 
       console.log('🔍 Respuesta del análisis:', resultado);
 
-      if (resultado.analisis) {
-        console.log('✅ Análisis encontrado en respuesta:', resultado.analisis.id_analisis);
+      if (resultado.analisis && resultado.analisis.estado === 'completado') {
+        console.log('✅ Análisis completado exitosamente:', resultado.analisis.id_analisis);
         Swal.fire({
           title: 'Análisis Completado',
           text: `Análisis ${resultado.analisis.id_analisis} completado exitosamente`,
@@ -88,8 +88,20 @@ const AnalisisCoples: React.FC = () => {
         console.log('🔄 Recargando datos...');
         await cargarDatos();
         console.log('✅ Datos recargados');
+      } else if (resultado.analisis && resultado.analisis.estado === 'error') {
+        console.log('❌ Análisis falló:', resultado.analisis.mensaje_error);
+        Swal.fire({
+          title: 'Error en el Análisis',
+          text: resultado.analisis.mensaje_error || 'Error desconocido',
+          icon: 'error',
+        });
       } else {
-        console.log('❌ No se encontró análisis en la respuesta:', resultado);
+        console.log('❌ Respuesta inesperada:', resultado);
+        Swal.fire({
+          title: 'Error',
+          text: 'Respuesta inesperada del servidor',
+          icon: 'error',
+        });
       }
     } catch (error) {
       console.error('Error realizando análisis:', error);

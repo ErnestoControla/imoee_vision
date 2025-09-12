@@ -324,7 +324,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),       # o el tiempo que prefieras
     # Duración del refresh token
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    # Opciones de rotación (opcional, pero recomendado)
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    # Opciones de rotación (deshabilitadas para evitar problemas con OutstandingToken)
+    'ROTATE_REFRESH_TOKENS': False,  # Deshabilitado para evitar problemas con OutstandingToken
+    'BLACKLIST_AFTER_ROTATION': False,  # Deshabilitado para evitar problemas con OutstandingToken
 }

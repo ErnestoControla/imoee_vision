@@ -31,7 +31,39 @@ def get_processed_image(request, analisis_id):
         # Obtener el análisis
         analisis = AnalisisCople.objects.get(id=analisis_id)
         
-        # Generar imagen procesada
+        # PRIMERO: Intentar usar la imagen procesada guardada
+        if analisis.imagen_procesada and analisis.imagen_procesada.name:
+            try:
+                logger.info(f"🖼️ [DEBUG] Intentando cargar imagen procesada guardada: {analisis.imagen_procesada.name}")
+                
+                # Leer la imagen procesada guardada
+                with analisis.imagen_procesada.open('rb') as f:
+                    image_bytes = f.read()
+                
+                # Convertir a base64
+                import base64
+                image_data = base64.b64encode(image_bytes).decode('utf-8')
+                
+                logger.info(f"✅ [DEBUG] Imagen procesada cargada exitosamente desde archivo guardado")
+                
+                # Devolver la imagen como base64
+                import json
+                return HttpResponse(
+                    json.dumps({
+                        'image_data': image_data,
+                        'analisis_id': analisis.id_analisis,
+                        'timestamp': analisis.timestamp_procesamiento.isoformat(),
+                        'source': 'saved_processed_image'
+                    }),
+                    content_type='application/json'
+                )
+                
+            except Exception as e:
+                logger.warning(f"⚠️ [DEBUG] Error cargando imagen procesada guardada: {e}")
+                logger.info(f"🔄 [DEBUG] Fallback a generación desde datos de BD")
+        
+        # FALLBACK: Generar imagen procesada desde datos de BD
+        logger.info(f"🎨 [DEBUG] Generando imagen procesada desde datos de BD...")
         image_data = generate_processed_image(analisis)
         
         if image_data is None:
@@ -48,7 +80,8 @@ def get_processed_image(request, analisis_id):
             json.dumps({
                 'image_data': image_data,
                 'analisis_id': analisis.id_analisis,
-                'timestamp': analisis.timestamp_procesamiento.isoformat()
+                'timestamp': analisis.timestamp_procesamiento.isoformat(),
+                'source': 'generated_from_db'
             }),
             content_type='application/json'
         )

@@ -168,7 +168,7 @@ const DetalleAnalisis: React.FC = () => {
         {/* Layout Principal: Imagen a la izquierda (protagonista), información a la derecha */}
         
         {/* Imagen Procesada - Protagonista Principal (8/12 columnas) */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           {analisis.estado === 'completado' && (
             <Card sx={{ 
               height: '100%',
@@ -214,7 +214,7 @@ const DetalleAnalisis: React.FC = () => {
         </Grid>
 
         {/* Panel de Información - Lado Derecho (4/12 columnas) */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           {/* Información General */}
           <Card sx={{ mb: 2 }}>
             <CardHeader
@@ -236,7 +236,7 @@ const DetalleAnalisis: React.FC = () => {
             />
             <CardContent>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Fecha de Captura:
                   </Typography>
@@ -244,7 +244,7 @@ const DetalleAnalisis: React.FC = () => {
                     {dayjs(analisis.timestamp_captura).format('DD/MM/YYYY HH:mm:ss')}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Fecha de Procesamiento:
                   </Typography>
@@ -252,7 +252,7 @@ const DetalleAnalisis: React.FC = () => {
                     {dayjs(analisis.timestamp_procesamiento).format('DD/MM/YYYY HH:mm:ss')}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Usuario:
                   </Typography>
@@ -260,7 +260,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.usuario_nombre}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Configuración:
                   </Typography>
@@ -268,7 +268,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.configuracion_nombre}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Resolución:
                   </Typography>
@@ -276,7 +276,7 @@ const DetalleAnalisis: React.FC = () => {
                     {analisis.resolucion_ancho} x {analisis.resolucion_alto} ({analisis.resolucion_canales} canales)
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Tiempo Total:
                   </Typography>
@@ -303,7 +303,7 @@ const DetalleAnalisis: React.FC = () => {
               />
               <CardContent>
                 <Grid container spacing={2}>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">
                       Clase Predicha:
                     </Typography>
@@ -313,7 +313,7 @@ const DetalleAnalisis: React.FC = () => {
                       sx={{ mt: 1 }}
                     />
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">
                       Confianza:
                     </Typography>
@@ -321,7 +321,7 @@ const DetalleAnalisis: React.FC = () => {
                       {Math.round(analisis.resultado_clasificacion.confianza * 100)}%
                     </Typography>
                   </Grid>
-                  <Grid item xs={12}>
+                  <Grid size={12}>
                     <Typography variant="body2" color="text.secondary">
                       Tiempo de Inferencia:
                     </Typography>
@@ -342,7 +342,7 @@ const DetalleAnalisis: React.FC = () => {
             />
             <CardContent>
               <Grid container spacing={2}>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Captura:
                   </Typography>
@@ -350,7 +350,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_captura_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Clasificación:
                   </Typography>
@@ -358,7 +358,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_clasificacion_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Detección Piezas:
                   </Typography>
@@ -366,7 +366,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_deteccion_piezas_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Detección Defectos:
                   </Typography>
@@ -374,7 +374,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_deteccion_defectos_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Segmentación Defectos:
                   </Typography>
@@ -382,7 +382,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_segmentacion_defectos_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Typography variant="body2" color="text.secondary">
                     Segmentación Piezas:
                   </Typography>
@@ -390,7 +390,7 @@ const DetalleAnalisis: React.FC = () => {
                     {formatTiempo(analisis.tiempo_segmentacion_piezas_ms)}
                   </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <Divider sx={{ my: 1 }} />
                   <Typography variant="body2" color="text.secondary">
                     Total:
@@ -405,7 +405,7 @@ const DetalleAnalisis: React.FC = () => {
         </Grid>
 
         {/* Secciones adicionales en pantalla completa para pantallas pequeñas */}
-        <Grid item xs={12} lg={12}>
+        <Grid size={{ xs: 12, lg: 12 }}>
           {/* Detecciones de Piezas */}
           {analisis.detecciones_piezas.length > 0 && (
             <Card sx={{ mt: 2 }}>
@@ -478,7 +478,7 @@ const DetalleAnalisis: React.FC = () => {
         </Grid>
 
         {/* Panel Lateral */}
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
         </Grid>
       </Grid>
     </Box>

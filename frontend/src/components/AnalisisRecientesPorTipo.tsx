@@ -108,7 +108,7 @@ const AnalisisRecientesPorTipo: React.FC<AnalisisRecientesPorTipoProps> = ({
 
       <Grid container spacing={3}>
         {analisisPorTipo.map((grupo) => (
-          <Grid item xs={12} key={grupo.tipo}>
+          <Grid size={12} key={grupo.tipo}>
             <Card 
               sx={{ 
                 background: `linear-gradient(135deg, ${grupo.color}20 0%, ${grupo.color}10 100%)`,
@@ -168,7 +168,7 @@ const AnalisisRecientesPorTipo: React.FC<AnalisisRecientesPorTipoProps> = ({
                 {grupo.analisis.length > 0 ? (
                   <Grid container spacing={2}>
                     {grupo.analisis.slice(0, 3).map((analisisItem) => (
-                      <Grid item xs={12} sm={6} md={4} key={analisisItem.id}>
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }} key={analisisItem.id}>
                         <AnalisisCardCompact
                           analisis={analisisItem}
                           onView={onView}
@@ -178,7 +178,7 @@ const AnalisisRecientesPorTipo: React.FC<AnalisisRecientesPorTipoProps> = ({
                     
                     {/* Mostrar indicador si hay más análisis */}
                     {grupo.analisis.length > 3 && (
-                      <Grid item xs={12} sm={6} md={4}>
+                      <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                         <Card 
                           sx={{ 
                             height: '100%',

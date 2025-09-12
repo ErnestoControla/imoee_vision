@@ -1,0 +1,18 @@
+[Unit]
+Description=IMoEE Vision Application
+Requires=docker.service
+After=docker.service
+StartLimitInterval=0
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/home/ernesto/Documentos/Proyectos/imoee_vision/asistente
+ExecStart=/usr/bin/docker compose -f docker-compose.local.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.local.yml down
+TimeoutStartSec=0
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

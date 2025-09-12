@@ -11,6 +11,7 @@ services:
       dockerfile: ./compose/local/django/Dockerfile
     image: asistente_local_django
     container_name: asistente_local_django
+    restart: always
     depends_on:
       - postgres
       - mailpit
@@ -38,6 +39,7 @@ services:
       dockerfile: ./compose/production/postgres/Dockerfile
     image: asistente_production_postgres
     container_name: asistente_local_postgres
+    restart: always
     volumes:
       - asistente_local_postgres_data:/var/lib/postgresql/data
       - asistente_local_postgres_data_backups:/backups
@@ -48,6 +50,7 @@ services:
     build:
       context: ../frontend
       dockerfile: Dockerfile.dev  # Usa el Dockerfile ajustado
+    restart: always
     ports:
       - "5173:5173"
     volumes:
@@ -59,5 +62,6 @@ services:
   mailpit:
     image: docker.io/axllent/mailpit:latest
     container_name: asistente_local_mailpit
+    restart: always
     ports:
       - "8025:8025"

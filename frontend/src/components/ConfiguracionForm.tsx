@@ -99,7 +99,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
       <form onSubmit={formik.handleSubmit}>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Nombre de la configuración"
@@ -113,7 +113,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="IP de la cámara"
@@ -127,7 +127,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Configuración de robustez</InputLabel>
                 <Select
@@ -154,7 +154,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Umbral de confianza"
@@ -170,7 +170,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Umbral IoU"
@@ -186,7 +186,7 @@ const ConfiguracionForm: React.FC<ConfiguracionFormProps> = ({
               />
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControlLabel
                 control={
                   <Switch

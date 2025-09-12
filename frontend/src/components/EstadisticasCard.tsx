@@ -61,7 +61,7 @@ const EstadisticasCard: React.FC<EstadisticasCardProps> = ({
       <CardContent>
         <Grid container spacing={3}>
           {/* Análisis Totales */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box textAlign="center">
               <Typography variant="h4" color="primary" gutterBottom>
                 {estadisticas.total_analisis}
@@ -73,7 +73,7 @@ const EstadisticasCard: React.FC<EstadisticasCardProps> = ({
           </Grid>
 
           {/* Tasa de Éxito */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box textAlign="center">
               <Typography variant="h4" color="success.main" gutterBottom>
                 {formatPorcentaje(estadisticas.tasa_exito)}
@@ -91,7 +91,7 @@ const EstadisticasCard: React.FC<EstadisticasCardProps> = ({
           </Grid>
 
           {/* Tasa de Aceptación */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box textAlign="center">
               <Typography variant="h4" color="info.main" gutterBottom>
                 {formatPorcentaje(estadisticas.tasa_aceptacion)}
@@ -109,7 +109,7 @@ const EstadisticasCard: React.FC<EstadisticasCardProps> = ({
           </Grid>
 
           {/* Confianza Promedio */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid size={{ xs: 12, sm: 6, md: 3 }}>
             <Box textAlign="center">
               <Typography variant="h4" color="warning.main" gutterBottom>
                 {formatConfianza(estadisticas.confianza_promedio)}
@@ -121,7 +121,7 @@ const EstadisticasCard: React.FC<EstadisticasCardProps> = ({
           </Grid>
 
           {/* Detalles */}
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Box display="flex" gap={2} flexWrap="wrap" justifyContent="center">
               <Chip
                 icon={<CheckCircle />}

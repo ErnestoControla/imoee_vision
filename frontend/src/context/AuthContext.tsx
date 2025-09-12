@@ -39,25 +39,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (username: string, password: string) => {
-    // 1) Pedimos tokens
-    const { data } = await API.post<{ access: string; refresh: string }>(
-      "/token/",
-      { username, password }
-    );
+    try {
+      console.log("🔐 Iniciando login para usuario:", username);
+      
+      // 1) Pedimos tokens
+      console.log("📡 Enviando petición de tokens...");
+      const { data } = await API.post<{ access: string; refresh: string }>(
+        "/token/",
+        { username, password }
+      );
+      console.log("✅ Tokens recibidos:", { access: data.access ? "✓" : "✗", refresh: data.refresh ? "✓" : "✗" });
 
-    // 2) Guardamos tokens y expiración del access
-    localStorage.setItem("accessToken", data.access);
-    localStorage.setItem("refreshToken", data.refresh);
-    const expiresAt = dayjs().add(1, "hour").unix().toString(); 
-    localStorage.setItem("accessTokenExp", expiresAt);
+      // 2) Guardamos tokens y expiración del access
+      localStorage.setItem("accessToken", data.access);
+      localStorage.setItem("refreshToken", data.refresh);
+      const expiresAt = dayjs().add(1, "hour").unix().toString(); 
+      localStorage.setItem("accessTokenExp", expiresAt);
+      console.log("💾 Tokens guardados en localStorage");
 
-    // 3) Inyectamos el header por defecto
-    API.defaults.headers.common.Authorization = `Bearer ${data.access}`;
+      // 3) Inyectamos el header por defecto
+      API.defaults.headers.common.Authorization = `Bearer ${data.access}`;
+      console.log("🔑 Header de autorización configurado");
 
-    // 4) Cargamos perfil y redirigimos
-    const res = await API.get<UsuarioPerfil>("/users/me/");
-    setUser(res.data);
-    navigate("/");
+      // 4) Cargamos perfil y redirigimos
+      console.log("👤 Cargando perfil de usuario...");
+      const res = await API.get<UsuarioPerfil>("/users/me/");
+      console.log("✅ Perfil cargado:", res.data);
+      setUser(res.data);
+      console.log("🏠 Redirigiendo a home...");
+      navigate("/");
+    } catch (error) {
+      console.error("❌ Error en login:", error);
+      throw error;
+    }
   };
 
   const logout = () => {

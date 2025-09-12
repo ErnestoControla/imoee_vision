@@ -171,6 +171,15 @@ class AnalisisCople(models.Model):
         help_text="Nombre del archivo JSON con metadatos"
     )
     
+    # Imagen procesada con resultados superpuestos
+    imagen_procesada = models.ImageField(
+        _("Imagen procesada"),
+        upload_to='analisis/',
+        null=True,
+        blank=True,
+        help_text="Imagen procesada con resultados superpuestos (máscaras, bounding boxes, etc.)"
+    )
+    
     # Información de la imagen
     resolucion_ancho = models.IntegerField(_("Ancho de imagen"))
     resolucion_alto = models.IntegerField(_("Alto de imagen"))
