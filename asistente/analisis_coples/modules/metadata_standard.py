@@ -363,20 +363,24 @@ class MetadataStandard:
                 metadatos, resultados, tiempos
             )
         elif tipo_analisis == "deteccion_piezas":
+            detecciones = resultados.get("detecciones_piezas", [])
             metadatos = MetadataStandard.agregar_resultados_deteccion(
-                metadatos, resultados, tiempos, "piezas"
+                metadatos, detecciones, tiempos, "piezas"
             )
         elif tipo_analisis == "deteccion_defectos":
+            detecciones = resultados.get("detecciones_defectos", [])
             metadatos = MetadataStandard.agregar_resultados_deteccion(
-                metadatos, resultados, tiempos, "defectos"
+                metadatos, detecciones, tiempos, "defectos"
             )
         elif tipo_analisis == "segmentacion_defectos":
+            segmentaciones = resultados.get("segmentaciones_defectos", [])
             metadatos = MetadataStandard.agregar_resultados_segmentacion(
-                metadatos, resultados, tiempos, "defectos"
+                metadatos, segmentaciones, tiempos, "defectos"
             )
         elif tipo_analisis == "segmentacion_piezas":
+            segmentaciones = resultados.get("segmentaciones_piezas", [])
             metadatos = MetadataStandard.agregar_resultados_segmentacion(
-                metadatos, resultados, tiempos, "piezas"
+                metadatos, segmentaciones, tiempos, "piezas"
             )
         
         return metadatos

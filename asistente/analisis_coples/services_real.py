@@ -793,64 +793,67 @@ class ServicioAnalisisCoplesReal:
                 analisis_db.tiempo_segmentacion_piezas_ms = tiempos.get('segmentacion_piezas_ms', 0.0)
                 analisis_db.tiempo_total_ms = tiempos.get('total_ms', 0.0)
             
-            # Guardar metadatos JSON completos (convirtiendo frame a base64)
-            resultados_json = resultados.copy()
-            if "frame" in resultados_json:
-                # Convertir frame de numpy a base64 para serialización
-                import cv2
-                import base64
-                frame = resultados_json["frame"]
-                if isinstance(frame, np.ndarray):
-                    # Asegurar que el frame esté en formato uint8 (como en Expo_modelos)
-                    if frame.dtype != np.uint8:
-                        if frame.dtype == np.float32 or frame.dtype == np.float64:
-                            # Asumir que está en rango [0, 1] y convertir a [0, 255]
-                            frame = (frame * 255).astype(np.uint8)
-                        else:
-                            frame = frame.astype(np.uint8)
-                    
-                    # NO convertir de BGR a RGB aquí - cv2.imencode espera BGR
-                    # El frame ya viene en BGR desde OpenCV, mantenerlo así
-                    frame_bgr = frame
-                    
-                    # Codificar a base64 usando JPG (como en Expo_modelos)
-                    _, buffer = cv2.imencode('.jpg', frame_bgr, [cv2.IMWRITE_JPEG_QUALITY, 95])
-                    frame_base64 = base64.b64encode(buffer).decode('utf-8')
-                    resultados_json["frame"] = frame_base64
-                    logger.info(f"✅ Frame guardado como base64 JPG: {len(frame_base64)} caracteres, shape: {frame_bgr.shape}, dtype: {frame_bgr.dtype}")
+            # Crear metadatos JSON completos usando MetadataStandard (como Expo_modelos)
+            from .modules.metadata_standard import MetadataStandard
+            
+            # Obtener información básica
+            if analisis_db.archivo_imagen:
+                if hasattr(analisis_db.archivo_imagen, 'name'):
+                    archivo_imagen = analisis_db.archivo_imagen.name
                 else:
-                    del resultados_json["frame"]  # Remover si no es numpy array
+                    archivo_imagen = str(analisis_db.archivo_imagen)
+            else:
+                archivo_imagen = f"analisis_{analisis_db.id_analisis}.jpg"
+            timestamp_captura = analisis_db.timestamp_captura.isoformat() if analisis_db.timestamp_captura else None
             
-            # Limpiar resultados_json para que sea serializable a JSON
-            logger.info(f"🧹 [DEBUG] Limpiando resultados para JSON...")
-            resultados_json_limpios = self._limpiar_resultados_para_json(resultados_json)
-            logger.info(f"🧹 [DEBUG] Resultados limpiados. Asignando a metadatos_json...")
+            logger.info(f"📊 [DEBUG] Creando metadatos completos con MetadataStandard")
+            logger.info(f"   📁 Archivo imagen: {archivo_imagen}")
+            logger.info(f"   🕐 Timestamp captura: {timestamp_captura}")
+            logger.info(f"   🔍 Tipo análisis: {analisis_db.tipo_analisis}")
             
-            # Verificar que no hay arrays de NumPy antes de asignar
+            # Crear metadatos completos usando el estándar de Expo_modelos
+            metadatos_completos = MetadataStandard.crear_metadatos_completos(
+                tipo_analisis=analisis_db.tipo_analisis,
+                archivo_imagen=archivo_imagen,
+                resultados=resultados,
+                tiempos=resultados.get("tiempos", {}),
+                timestamp_captura=timestamp_captura
+            )
+            
+            logger.info(f"📊 [DEBUG] Metadatos completos creados con MetadataStandard")
+            logger.info(f"   📋 Claves en metadatos: {list(metadatos_completos.keys())}")
+            
+            # Limpiar metadatos para JSON (remover arrays de numpy grandes)
+            logger.info(f"🧹 [DEBUG] Limpiando metadatos para JSON...")
+            metadatos_limpios = self._limpiar_resultados_para_json(metadatos_completos)
+            logger.info(f"🧹 [DEBUG] Metadatos limpiados. Asignando a metadatos_json...")
+            
+            # Verificar que los metadatos sean serializables
             import json
             try:
-                json.dumps(resultados_json_limpios)
-                logger.info(f"✅ [DEBUG] Resultados son serializables a JSON")
+                json.dumps(metadatos_limpios)
+                logger.info(f"✅ [DEBUG] Metadatos son serializables a JSON")
             except TypeError as e:
-                logger.error(f"❌ [DEBUG] Resultados NO son serializables: {e}")
+                logger.error(f"❌ [DEBUG] Metadatos NO son serializables: {e}")
                 # Limpiar más profundamente
-                resultados_json_limpios = self._limpiar_resultados_para_json_recursivo(resultados_json_limpios)
-                logger.info(f"🧹 [DEBUG] Limpieza recursiva aplicada")
+                metadatos_limpios = self._limpiar_resultados_para_json_recursivo(metadatos_limpios)
+                logger.info(f"🧹 [DEBUG] Limpieza recursiva aplicada a metadatos")
                 
                 # Verificar nuevamente después de la limpieza recursiva
                 try:
-                    json.dumps(resultados_json_limpios)
-                    logger.info(f"✅ [DEBUG] Resultados son serializables después de limpieza recursiva")
+                    json.dumps(metadatos_limpios)
+                    logger.info(f"✅ [DEBUG] Metadatos son serializables después de limpieza recursiva")
                 except TypeError as e2:
-                    logger.error(f"❌ [DEBUG] Resultados AÚN NO son serializables después de limpieza recursiva: {e2}")
+                    logger.error(f"❌ [DEBUG] Metadatos AÚN NO son serializables después de limpieza recursiva: {e2}")
                     # Como último recurso, crear un diccionario simplificado
-                    resultados_json_limpios = {
-                        "error": "Error de serialización",
+                    metadatos_limpios = {
+                        "error": "Error de serialización de metadatos",
                         "timestamp": str(timezone.now()),
-                        "tipo_analisis": "segmentacion_defectos"
+                        "tipo_analisis": analisis_db.tipo_analisis,
+                        "archivo_imagen": archivo_imagen
                     }
             
-            analisis_db.metadatos_json = resultados_json_limpios
+            analisis_db.metadatos_json = metadatos_limpios
             
             # Procesar resultados específicos
             self._guardar_resultados_clasificacion(analisis_db, resultados)

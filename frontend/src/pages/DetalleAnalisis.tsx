@@ -1,14 +1,14 @@
-// src/pages/DetalleAnalisis.tsx
 import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardHeader,
-  Chip,
   Button,
+  Chip,
+  Grid,
   Alert,
   CircularProgress,
   Table,
@@ -17,21 +17,86 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  Divider,
+  Paper
 } from '@mui/material';
 import {
   ArrowBack,
   Download,
-  Image,
-  Assessment,
-  Schedule,
+  Image
 } from '@mui/icons-material';
-import { useParams, useNavigate } from 'react-router-dom';
-import { analisisAPI } from '../api/analisis';
-import type { AnalisisCople } from '../api/analisis';
 import dayjs from 'dayjs';
 import ImagenProcesada from '../components/ImagenProcesada';
+import API from '../api/axios';
+
+interface AnalisisCople {
+  id: number;
+  estado: string;
+  tipo_analisis: string;
+  timestamp_captura: string;
+  timestamp_procesamiento: string;
+  usuario_nombre: string;
+  configuracion_nombre: string;
+  resolucion_ancho: number;
+  resolucion_alto: number;
+  resolucion_canales: number;
+  tiempo_total_ms: number;
+  mensaje_error?: string;
+  resultado_clasificacion?: {
+    clase_predicha: string;
+    confianza: number;
+    tiempo_inferencia_ms: number;
+  };
+  detecciones_defectos?: Array<{
+    clase: string;
+    confianza: number;
+    centroide: { x: number; y: number };
+    area: number;
+  }>;
+  detecciones_piezas?: Array<{
+    clase: string;
+    confianza: number;
+    centroide: { x: number; y: number };
+    area: number;
+  }>;
+  metadatos_json?: {
+    tiempos?: {
+      captura_ms?: number;
+      segmentacion_defectos_ms?: number;
+      segmentacion_piezas_ms?: number;
+      clasificacion_ms?: number;
+      deteccion_defectos_ms?: number;
+      deteccion_piezas_ms?: number;
+      total_ms?: number;
+    };
+    resultados?: {
+      defectos_segmentadas?: Array<{
+        id?: number;
+        clase: string;
+        confianza: number;
+        centroide: { x: number; y: number };
+        area_mascara: number;
+        area_bbox?: number;
+        bbox?: { x1: number; y1: number; x2: number; y2: number };
+      }>;
+      piezas_segmentadas?: Array<{
+        id?: number;
+        clase: string;
+        confianza: number;
+        centroide: { x: number; y: number };
+        area_mascara: number;
+        area_bbox?: number;
+        bbox?: { x1: number; y1: number; x2: number; y2: number };
+      }>;
+      clasificacion?: {
+        clase_predicha: string;
+        confianza: number;
+      };
+    };
+    modelo?: {
+      nombre: string;
+    };
+  };
+}
 
 const DetalleAnalisis: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,105 +106,69 @@ const DetalleAnalisis: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchAnalisis = async () => {
+      try {
+        const response = await API.get(`/analisis/resultados/${id}/`);
+        setAnalisis(response.data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error desconocido');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) {
-      const analisisId = parseInt(id);
-      cargarAnalisis(analisisId);
-    } else {
-      setLoading(false);
+      fetchAnalisis();
     }
   }, [id]);
 
-  const cargarAnalisis = async (analisisId: number) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await analisisAPI.getAnalisisById(analisisId);
-      setAnalisis(data);
-    } catch (error: any) {
-      setError(error.response?.data?.detail || error.message || 'Error cargando análisis');
-      setAnalisis(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatTiempo = (ms: number) => {
-    if (ms < 1000) {
-      return `${ms.toFixed(0)}ms`;
-    }
+  const formatTiempo = (ms: number): string => {
+    if (ms === 0 || isNaN(ms)) return '0ms';
+    if (ms < 1000) return `${Math.round(ms)}ms`;
     return `${(ms / 1000).toFixed(2)}s`;
   };
 
-  const getEstadoColor = (estado: string) => {
+  const getEstadoColor = (estado: string): string => {
     switch (estado) {
-      case 'completado':
-        return 'success';
-      case 'error':
-        return 'error';
-      case 'procesando':
-        return 'warning';
-      default:
-        return 'default';
+      case 'completado': return 'success';
+      case 'procesando': return 'warning';
+      case 'error': return 'error';
+      default: return 'default';
     }
   };
 
-  const getTipoAnalisisLabel = (tipo: string) => {
-    const labels: { [key: string]: string } = {
-      completo: 'Análisis Completo',
-      clasificacion: 'Solo Clasificación',
-      deteccion_piezas: 'Detección de Piezas',
-      deteccion_defectos: 'Detección de Defectos',
-      segmentacion_defectos: 'Segmentación de Defectos',
-      segmentacion_piezas: 'Segmentación de Piezas',
-    };
-    return labels[tipo] || tipo;
+  const getTipoAnalisisLabel = (tipo: string): string => {
+    switch (tipo) {
+      case 'clasificacion': return 'Clasificación';
+      case 'deteccion_defectos': return 'Detección de Defectos';
+      case 'deteccion_piezas': return 'Detección de Piezas';
+      case 'segmentacion_defectos': return 'Segmentación de Defectos';
+      case 'segmentacion_piezas': return 'Segmentación de Piezas';
+      default: return tipo;
+    }
   };
 
   const handleDescargar = () => {
-    if (analisis) {
-      // Crear un enlace de descarga para la imagen procesada
-      const link = document.createElement('a');
-      link.href = `/api/analisis/imagenes/${analisis.id}/`;
-      link.download = `analisis_${analisis.id_analisis}_procesada.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    // TODO: Implementar descarga
+    console.log('Descargar análisis:', analisis?.id);
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
         <CircularProgress />
-        <Typography variant="body1" sx={{ ml: 2 }}>
-          Cargando análisis...
-        </Typography>
       </Box>
     );
   }
 
-  if (error) {
+  if (error || !analisis) {
     return (
-      <Box>
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+      <Box sx={{ p: 3 }}>
+        <Alert severity="error">
+          {error || 'No se pudo cargar el análisis'}
         </Alert>
         <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/analisis')}
-          sx={{ mt: 2 }}
-        >
-          Volver
-        </Button>
-      </Box>
-    );
-  }
-
-  if (!analisis) {
-    return (
-      <Box>
-        <Alert severity="error">Análisis no encontrado</Alert>
-        <Button
+          variant="outlined"
           startIcon={<ArrowBack />}
           onClick={() => navigate('/analisis')}
           sx={{ mt: 2 }}
@@ -151,9 +180,11 @@ const DetalleAnalisis: React.FC = () => {
   }
 
   return (
-    <Box>
-      <Box display="flex" alignItems="center" gap={2} mb={3}>
+    <Box sx={{ p: 3 }}>
+      {/* Header */}
+      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Button
+          variant="outlined"
           startIcon={<ArrowBack />}
           onClick={() => navigate('/analisis')}
         >
@@ -165,13 +196,10 @@ const DetalleAnalisis: React.FC = () => {
       </Box>
 
       <Grid container spacing={3}>
-        {/* Layout Principal: Imagen a la izquierda (protagonista), información a la derecha */}
-        
-        {/* Imagen Procesada - Protagonista Principal (8/12 columnas) */}
-        <Grid size={{ xs: 12, lg: 8 }}>
+        {/* Imagen Procesada - Fila Superior */}
+        <Grid size={{ xs: 12 }}>
           {analisis.estado === 'completado' && (
             <Card sx={{ 
-              height: '100%',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
@@ -201,284 +229,257 @@ const DetalleAnalisis: React.FC = () => {
                 display: 'flex', 
                 justifyContent: 'center', 
                 alignItems: 'center',
-                minHeight: '500px',
-                p: 3
+                minHeight: '400px',
+                p: 1
               }}>
-                <ImagenProcesada 
-                  analisisId={analisis.id} 
-                  showThumbnail={false}
-                />
-              </CardContent>
-            </Card>
-          )}
-        </Grid>
-
-        {/* Panel de Información - Lado Derecho (4/12 columnas) */}
-        <Grid size={{ xs: 12, lg: 4 }}>
-          {/* Información General */}
-          <Card sx={{ mb: 2 }}>
-            <CardHeader
-              title="Información General"
-              subheader={
-                <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
-                  <Chip
-                    label={analisis.estado}
-                    color={getEstadoColor(analisis.estado) as any}
-                    size="small"
-                  />
-                  <Chip
-                    label={getTipoAnalisisLabel(analisis.tipo_analisis)}
-                    variant="outlined"
-                    size="small"
+                <Box sx={{ 
+                  maxWidth: '100%', 
+                  maxHeight: '100%',
+                  '& img': {
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain'
+                  }
+                }}>
+                  <ImagenProcesada 
+                    analisisId={analisis.id} 
+                    showThumbnail={false}
+                    width={600}
+                    height={600}
                   />
                 </Box>
-              }
-            />
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Fecha de Captura:
-                  </Typography>
-                  <Typography variant="body1">
-                    {dayjs(analisis.timestamp_captura).format('DD/MM/YYYY HH:mm:ss')}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Fecha de Procesamiento:
-                  </Typography>
-                  <Typography variant="body1">
-                    {dayjs(analisis.timestamp_procesamiento).format('DD/MM/YYYY HH:mm:ss')}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Usuario:
-                  </Typography>
-                  <Typography variant="body1">
-                    {analisis.usuario_nombre}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Configuración:
-                  </Typography>
-                  <Typography variant="body1">
-                    {analisis.configuracion_nombre}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Resolución:
-                  </Typography>
-                  <Typography variant="body1">
-                    {analisis.resolucion_ancho} x {analisis.resolucion_alto} ({analisis.resolucion_canales} canales)
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Tiempo Total:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_total_ms)}
-                  </Typography>
-                </Grid>
-              </Grid>
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
 
-              {analisis.mensaje_error && (
-                <Alert severity="error" sx={{ mt: 2 }}>
-                  {analisis.mensaje_error}
-                </Alert>
+        {/* Información - Fila Inferior */}
+        <Grid size={{ xs: 12 }}>
+          <Grid container spacing={3}>
+            {/* Columna Izquierda - Información General */}
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Card sx={{ mb: 2 }}>
+                <CardHeader
+                  title="Información General"
+                  subheader={
+                    <Box display="flex" gap={1} alignItems="center" flexWrap="wrap">
+                      <Chip
+                        label={analisis.estado}
+                        color={getEstadoColor(analisis.estado) as any}
+                        size="small"
+                      />
+                      <Chip
+                        label={getTipoAnalisisLabel(analisis.tipo_analisis)}
+                        variant="outlined"
+                        size="small"
+                      />
+                    </Box>
+                  }
+                />
+                <CardContent>
+                  <Grid container spacing={2}>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Fecha de Captura:
+                      </Typography>
+                      <Typography variant="body1">
+                        {dayjs(analisis.timestamp_captura).format('DD/MM/YYYY HH:mm:ss')}
+                      </Typography>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Fecha de Procesamiento:
+                      </Typography>
+                      <Typography variant="body1">
+                        {dayjs(analisis.timestamp_procesamiento).format('DD/MM/YYYY HH:mm:ss')}
+                      </Typography>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Usuario:
+                      </Typography>
+                      <Typography variant="body1">
+                        {analisis.usuario_nombre}
+                      </Typography>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Configuración:
+                      </Typography>
+                      <Typography variant="body1">
+                        {analisis.configuracion_nombre}
+                      </Typography>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Resolución:
+                      </Typography>
+                      <Typography variant="body1">
+                        {analisis.resolucion_ancho} x {analisis.resolucion_alto} ({analisis.resolucion_canales} canales)
+                      </Typography>
+                    </Grid>
+                    <Grid size={12}>
+                      <Typography variant="body2" color="text.secondary">
+                        Tiempo Total:
+                      </Typography>
+                      <Typography variant="body1">
+                        {formatTiempo(analisis.tiempo_total_ms)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+
+                  {analisis.mensaje_error && (
+                    <Alert severity="error" sx={{ mt: 2 }}>
+                      {analisis.mensaje_error}
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Columna Derecha - Información Específica del Análisis */}
+            <Grid size={{ xs: 12, md: 8 }}>
+              {analisis.metadatos_json && (
+                <>
+                  {/* Información específica según el tipo de análisis */}
+                  {analisis.tipo_analisis === 'segmentacion_defectos' && analisis.metadatos_json.resultados?.defectos_segmentadas && (
+                    <Card variant="outlined" sx={{ mb: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          🎯 Segmentación de Defectos
+                        </Typography>
+                        <Grid container spacing={2}>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Defectos Encontrados
+                            </Typography>
+                            <Typography variant="h4" color="error.main">
+                              {analisis.metadatos_json.resultados.defectos_segmentadas.length}
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Confianza Promedio
+                            </Typography>
+                            <Typography variant="h4" color="warning.main">
+                              {Math.round((analisis.metadatos_json.resultados.defectos_segmentadas.reduce((acc: number, defecto: any) => acc + defecto.confianza, 0) / analisis.metadatos_json.resultados.defectos_segmentadas.length) * 100)}%
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Área Total
+                            </Typography>
+                            <Typography variant="h6" color="info.main">
+                              {analisis.metadatos_json.resultados.defectos_segmentadas.reduce((acc: number, defecto: any) => acc + defecto.area_mascara, 0)} px²
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Modelo
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                              {analisis.metadatos_json.modelo?.nombre || 'N/A'}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {analisis.tipo_analisis === 'segmentacion_piezas' && analisis.metadatos_json.resultados?.piezas_segmentadas && (
+                    <Card variant="outlined" sx={{ mb: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          🧩 Segmentación de Piezas
+                        </Typography>
+                        <Grid container spacing={2}>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Piezas Encontradas
+                            </Typography>
+                            <Typography variant="h4" color="success.main">
+                              {analisis.metadatos_json.resultados.piezas_segmentadas.length}
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Confianza Promedio
+                            </Typography>
+                            <Typography variant="h4" color="warning.main">
+                              {Math.round((analisis.metadatos_json.resultados.piezas_segmentadas.reduce((acc: number, pieza: any) => acc + pieza.confianza, 0) / analisis.metadatos_json.resultados.piezas_segmentadas.length) * 100)}%
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Área Total
+                            </Typography>
+                            <Typography variant="h6" color="info.main">
+                              {analisis.metadatos_json.resultados.piezas_segmentadas.reduce((acc: number, pieza: any) => acc + pieza.area_mascara, 0)} px²
+                            </Typography>
+                          </Grid>
+                          <Grid size={6}>
+                            <Typography variant="body2" color="text.secondary">
+                              Modelo
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                              {analisis.metadatos_json.modelo?.nombre || 'N/A'}
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Detalles de Objetos Detectados/Segmentados */}
+                  {(analisis.tipo_analisis === 'segmentacion_defectos' || analisis.tipo_analisis === 'segmentacion_piezas') && 
+                   analisis.metadatos_json.resultados && (
+                    <Card variant="outlined" sx={{ mb: 2 }}>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          📍 Detalles de {analisis.tipo_analisis === 'segmentacion_defectos' ? 'Defectos' : 'Piezas'}
+                        </Typography>
+                        <TableContainer component={Paper} variant="outlined">
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                <TableCell>ID</TableCell>
+                                <TableCell>Clase</TableCell>
+                                <TableCell>Confianza</TableCell>
+                                <TableCell>Centroide</TableCell>
+                                <TableCell>Área</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {(analisis.metadatos_json.resultados.defectos_segmentadas || 
+                                analisis.metadatos_json.resultados.piezas_segmentadas || []).map((objeto: any, index: number) => (
+                                <TableRow key={objeto.id || index}>
+                                  <TableCell>{objeto.id || index + 1}</TableCell>
+                                  <TableCell>
+                                    <Chip
+                                      label={objeto.clase}
+                                      size="small"
+                                      color={objeto.clase === 'Defecto' ? 'error' : 'success'}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    {Math.round(objeto.confianza * 100)}%
+                                  </TableCell>
+                                  <TableCell>
+                                    ({objeto.centroide?.x || 0}, {objeto.centroide?.y || 0})
+                                  </TableCell>
+                                  <TableCell>{objeto.area_mascara || objeto.area_bbox || 0}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
               )}
-            </CardContent>
-          </Card>
-
-          {/* Resultado de Clasificación */}
-          {analisis.resultado_clasificacion && (
-            <Card sx={{ mb: 2 }}>
-              <CardHeader
-                title="Resultado de Clasificación"
-                avatar={<Assessment />}
-              />
-              <CardContent>
-                <Grid container spacing={2}>
-                  <Grid size={12}>
-                    <Typography variant="body2" color="text.secondary">
-                      Clase Predicha:
-                    </Typography>
-                    <Chip
-                      label={analisis.resultado_clasificacion.clase_predicha}
-                      color={analisis.resultado_clasificacion.clase_predicha === 'Aceptado' ? 'success' : 'error'}
-                      sx={{ mt: 1 }}
-                    />
-                  </Grid>
-                  <Grid size={12}>
-                    <Typography variant="body2" color="text.secondary">
-                      Confianza:
-                    </Typography>
-                    <Typography variant="h6" sx={{ mt: 1 }}>
-                      {Math.round(analisis.resultado_clasificacion.confianza * 100)}%
-                    </Typography>
-                  </Grid>
-                  <Grid size={12}>
-                    <Typography variant="body2" color="text.secondary">
-                      Tiempo de Inferencia:
-                    </Typography>
-                    <Typography variant="body1" sx={{ mt: 1 }}>
-                      {formatTiempo(analisis.resultado_clasificacion.tiempo_inferencia_ms)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Tiempos de Procesamiento */}
-          <Card sx={{ mb: 2 }}>
-            <CardHeader
-              title="Tiempos de Procesamiento"
-              avatar={<Schedule />}
-            />
-            <CardContent>
-              <Grid container spacing={2}>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Captura:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_captura_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Clasificación:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_clasificacion_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Detección Piezas:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_deteccion_piezas_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Detección Defectos:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_deteccion_defectos_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Segmentación Defectos:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_segmentacion_defectos_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Typography variant="body2" color="text.secondary">
-                    Segmentación Piezas:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formatTiempo(analisis.tiempo_segmentacion_piezas_ms)}
-                  </Typography>
-                </Grid>
-                <Grid size={12}>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography variant="body2" color="text.secondary">
-                    Total:
-                  </Typography>
-                  <Typography variant="h6" color="primary">
-                    {formatTiempo(analisis.tiempo_total_ms)}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Secciones adicionales en pantalla completa para pantallas pequeñas */}
-        <Grid size={{ xs: 12, lg: 12 }}>
-          {/* Detecciones de Piezas */}
-          {analisis.detecciones_piezas.length > 0 && (
-            <Card sx={{ mt: 2 }}>
-              <CardHeader title="Detecciones de Piezas" />
-              <CardContent>
-                <TableContainer component={Paper} variant="outlined">
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Clase</TableCell>
-                        <TableCell>Confianza</TableCell>
-                        <TableCell>Centroide</TableCell>
-                        <TableCell>Área</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {analisis.detecciones_piezas.map((pieza, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{pieza.clase}</TableCell>
-                          <TableCell>
-                            {Math.round(pieza.confianza * 100)}%
-                          </TableCell>
-                          <TableCell>
-                            ({pieza.centroide.x}, {pieza.centroide.y})
-                          </TableCell>
-                          <TableCell>{pieza.area}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Detecciones de Defectos */}
-          {analisis.detecciones_defectos.length > 0 && (
-            <Card sx={{ mt: 2 }}>
-              <CardHeader title="Detecciones de Defectos" />
-              <CardContent>
-                <TableContainer component={Paper} variant="outlined">
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Clase</TableCell>
-                        <TableCell>Confianza</TableCell>
-                        <TableCell>Centroide</TableCell>
-                        <TableCell>Área</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {analisis.detecciones_defectos.map((defecto, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{defecto.clase}</TableCell>
-                          <TableCell>
-                            {Math.round(defecto.confianza * 100)}%
-                          </TableCell>
-                          <TableCell>
-                            ({defecto.centroide.x}, {defecto.centroide.y})
-                          </TableCell>
-                          <TableCell>{defecto.area}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </CardContent>
-            </Card>
-          )}
-        </Grid>
-
-        {/* Panel Lateral */}
-        <Grid size={{ xs: 12, md: 4 }}>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Box>
